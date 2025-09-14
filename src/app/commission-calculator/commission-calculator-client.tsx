@@ -105,7 +105,7 @@ export default function CommissionCalculatorClient() {
                 <Input
                   id="currency"
                   name="currency"
-                  placeholder="e.g., USD"
+                  placeholder="e.g., INR"
                   maxLength={3}
                   required
                 />

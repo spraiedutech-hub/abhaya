@@ -6,12 +6,12 @@ import { getCommissionForecast } from './actions';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Rocket, FileText, AlertTriangle, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const initialState = {
   success: undefined,
@@ -30,12 +30,12 @@ function SubmitButton() {
                 {pending ? (
                     <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
+                    Calculating...
                     </>
                 ) : (
                     <>
                     <Rocket className="mr-2 h-4 w-4" />
-                    Generate Forecast
+                    Calculate Earnings
                     </>
                 )}
                 </Button>
@@ -69,38 +69,55 @@ export default function CommissionCalculatorClient() {
           <CardHeader>
             <CardTitle>Input Parameters</CardTitle>
             <CardDescription>
-              Describe your team structure and sales to generate a forecast.
+              Enter your sales figures to calculate potential commission.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="networkStructure">Your Business Model</Label>
-              <Textarea
-                id="networkStructure"
-                name="networkStructure"
-                placeholder="e.g., As a Supervisor, I get 30% on my direct sales and 10% from my 5 Direct Workers' sales. If a worker becomes a Supervisor, they get 20% on their sales and 10% on their team's sales."
-                rows={5}
-                required
-              />
-              {state.errors?.networkStructure && (
-                <p className="text-sm text-destructive">{state.errors.networkStructure[0]}</p>
+          <CardContent className="grid gap-6">
+            <div className="grid gap-3">
+               <Label>What is your rank?</Label>
+               <RadioGroup required name="userRank" defaultValue="supervisor">
+                 <div className="flex items-center space-x-2">
+                   <RadioGroupItem value="supervisor" id="supervisor" />
+                   <Label htmlFor="supervisor">Supervisor</Label>
+                 </div>
+                 <div className="flex items-center space-x-2">
+                   <RadioGroupItem value="new_supervisor" id="new_supervisor" />
+                   <Label htmlFor="new_supervisor">Newly Promoted Supervisor (previously Direct Worker)</Label>
+                 </div>
+               </RadioGroup>
+               {state.errors?.userRank && (
+                <p className="text-sm text-destructive">{state.errors.userRank[0]}</p>
               )}
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="salesVolume">Your Team's Total Sales Volume</Label>
+               <div className="grid gap-2">
+                <Label htmlFor="personalSales">Your Personal Sales Volume</Label>
                 <Input
-                  id="salesVolume"
-                  name="salesVolume"
+                  id="personalSales"
+                  name="personalSales"
+                  type="number"
+                  placeholder="e.g., 10000"
+                  required
+                />
+                 {state.errors?.personalSales && (
+                  <p className="text-sm text-destructive">{state.errors.personalSales[0]}</p>
+                 )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="teamSales">Your Team's Total Sales Volume</Label>
+                <Input
+                  id="teamSales"
+                  name="teamSales"
                   type="number"
                   placeholder="e.g., 50000"
                   required
                 />
-                 {state.errors?.salesVolume && (
-                  <p className="text-sm text-destructive">{state.errors.salesVolume[0]}</p>
+                 {state.errors?.teamSales && (
+                  <p className="text-sm text-destructive">{state.errors.teamSales[0]}</p>
                  )}
               </div>
-              <div className="grid gap-2">
+            </div>
+             <div className="grid gap-2">
                 <Label htmlFor="currency">Currency</Label>
                 <Input
                   id="currency"
@@ -113,7 +130,6 @@ export default function CommissionCalculatorClient() {
                   <p className="text-sm text-destructive">{state.errors.currency[0]}</p>
                 )}
               </div>
-            </div>
           </CardContent>
           <CardFooter>
             <SubmitButton />
@@ -139,7 +155,7 @@ export default function CommissionCalculatorClient() {
                 </div>
                  <div>
                     <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <FileText className="h-4 w-4" /> Assumptions
+                        <FileText className="h-4 w-4" /> Calculation Breakdown
                     </h3>
                     <p className="text-muted-foreground whitespace-pre-wrap">{state.data.assumptions}</p>
                 </div>

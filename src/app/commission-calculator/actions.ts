@@ -4,8 +4,9 @@ import { commissionForecasting } from '@/ai/flows/commission-forecasting';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  networkStructure: z.string().min(10, 'Please describe your network structure in more detail.'),
-  salesVolume: z.coerce.number().positive('Sales volume must be a positive number.'),
+  userRank: z.enum(['supervisor', 'new_supervisor']),
+  personalSales: z.coerce.number().positive('Personal sales must be a positive number.'),
+  teamSales: z.coerce.number().nonnegative('Team sales must be a positive number or zero.'),
   currency: z.string().length(3, 'Please enter a valid 3-letter currency code.'),
 });
 
@@ -18,8 +19,9 @@ type State = {
     disclaimer: string;
   };
   errors?: {
-    networkStructure?: string[];
-    salesVolume?: string[];
+    userRank?: string[];
+    personalSales?: string[];
+    teamSales?: string[];
     currency?: string[];
   }
 }
@@ -29,8 +31,9 @@ export async function getCommissionForecast(
   formData: FormData
 ): Promise<State> {
   const validatedFields = formSchema.safeParse({
-    networkStructure: formData.get('networkStructure'),
-    salesVolume: formData.get('salesVolume'),
+    userRank: formData.get('userRank'),
+    personalSales: formData.get('personalSales'),
+    teamSales: formData.get('teamSales'),
     currency: formData.get('currency'),
   });
 
@@ -44,8 +47,9 @@ export async function getCommissionForecast(
 
   try {
     const result = await commissionForecasting({
-      networkStructure: validatedFields.data.networkStructure,
-      salesVolume: validatedFields.data.salesVolume,
+      userRank: validatedFields.data.userRank,
+      personalSales: validatedFields.data.personalSales,
+      teamSales: validatedFields.data.teamSales,
       currency: validatedFields.data.currency.toUpperCase(),
     });
 

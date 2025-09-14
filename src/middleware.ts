@@ -1,25 +1,50 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { decode } from 'jsonwebtoken';
+
+// Define admin routes
+const adminPaths = ['/admin', '/record-sale', '/add-user'];
+// Hardcode the admin email for role checking
+const ADMIN_EMAIL = 'alice@example.com';
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value;
+  const { pathname } = request.nextUrl;
 
   // If there's no session cookie, redirect to login for protected pages.
   if (!session) {
-    // Avoid redirecting if the user is already on the login or signup page
-    if (request.nextUrl.pathname !== '/login' && request.nextUrl.pathname !== '/signup') {
-        return NextResponse.redirect(new URL('/login', request.url));
+    if (pathname !== '/login' && pathname !== '/signup') {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
+    return NextResponse.next();
   }
 
   // If the user has a session cookie but tries to access login/signup, redirect to home
-  if (session && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+  if (pathname === '/login' || pathname === '/signup') {
     return NextResponse.redirect(new URL('/', request.url));
   }
-  
-  // Proceed to the requested page. The actual session verification will happen
-  // in server components/actions that need authenticated data.
+
+  // Admin route protection
+  if (adminPaths.some(path => pathname.startsWith(path))) {
+    try {
+      const decodedToken = decode(session);
+      if (typeof decodedToken === 'object' && decodedToken !== null && 'email' in decodedToken) {
+        const userEmail = decodedToken.email as string;
+        if (userEmail !== ADMIN_EMAIL) {
+          // If not an admin, redirect to the dashboard
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+      } else {
+        // If token is invalid or doesn't contain email, redirect to login
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (error) {
+      console.error('Token decoding failed:', error);
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 

@@ -15,23 +15,48 @@ import {
   BookOpen,
   Headset,
   Shield,
-  UserPlus,
   DollarSign,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import { decode } from 'jsonwebtoken';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
-  { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
   { href: '/support', label: 'Support', icon: Headset },
+];
+
+const adminNavItems = [
+  { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
   { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
+const ADMIN_EMAIL = 'alice@example.com';
+
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const session = Cookies.get('session');
+    if (session) {
+      try {
+        const decodedToken = decode(session);
+        if (typeof decodedToken === 'object' && decodedToken !== null && 'email' in decodedToken) {
+          setIsAdmin(decodedToken.email === ADMIN_EMAIL);
+        }
+      } catch (e) {
+        console.error("Failed to decode token", e);
+      }
+    }
+  }, []);
+
+  const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -44,7 +69,7 @@ export default function Sidebar() {
             <Logo className="h-5 w-5 transition-all group-hover:scale-110" />
             <span className="sr-only">Abhaya</span>
           </Link>
-          {navItems.map((item) => (
+          {allNavItems.map((item) => (
             <Tooltip key={item.href}>
               <TooltipTrigger asChild>
                 <Link

@@ -1,9 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndianRupee, BarChart, UserCheck } from 'lucide-react';
-import { earningsData } from '@/lib/data';
+import { getUserEarnings } from '@/lib/commission-service';
+import { getUsersByIds } from '@/lib/user-service';
+import { adminData } from '@/lib/data';
 
-export default function EarningsOverview() {
-  const { totalEarnings, rank, status, currency } = earningsData;
+// In a real app with authentication, this ID would come from the logged-in user's session.
+// For now, we'll hardcode Alice's ID to demonstrate the dynamic data.
+const MOCKED_USER_ID = 'Gth4q47v6sE3b2iDpQzN'; // This is a seeded ID for Alice
+
+export default async function EarningsOverview() {
+  const { currency } = adminData;
+  const totalEarnings = await getUserEarnings(MOCKED_USER_ID);
+  const users = await getUsersByIds([MOCKED_USER_ID]);
+  const currentUser = users[0] || { rank: 'N/A', status: 'Unknown' };
 
   const stats = [
     {
@@ -16,12 +25,12 @@ export default function EarningsOverview() {
     },
     {
       title: 'Current Rank',
-      value: rank,
+      value: currentUser.rank,
       icon: BarChart,
     },
     {
       title: 'Status',
-      value: status,
+      value: currentUser.status,
       icon: UserCheck,
     },
   ];

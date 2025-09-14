@@ -13,20 +13,12 @@ export interface User {
   uplineId?: string; // ID of the user who recruited them
 }
 
-// Seed data - only used if the users collection is empty
-const seedUsers: Omit<User, 'id'>[] = [
-    { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' },
-    { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' },
-    { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: 'NEEDS_ALICE_ID' },
-    { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: 'NEEDS_BOB_ID' },
-    { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: 'NEEDS_ALICE_ID' },
-];
-
 async function seedInitialUsers() {
+    console.log('Checking if initial users need to be seeded...');
     const usersCollection = collection(db, 'users');
     const batch = writeBatch(db);
 
-    const aliceRef = doc(usersCollection);
+    const aliceRef = doc(usersCollection, 'Gth4q47v6sE3b2iDpQzN'); // Hardcoded ID for Alice
     const bobRef = doc(usersCollection);
 
     batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });

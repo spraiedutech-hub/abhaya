@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, Timestamp, writeBatch, doc } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, writeBatch, doc, query, where, getDocs } from 'firebase/firestore';
 import type { Sale } from './sales-service';
 import type { User } from './user-service';
 import { getUsersByIds } from './user-service';
@@ -96,4 +96,33 @@ export async function calculateAndRecordCommissions(sale: Sale): Promise<void> {
     // like a retry queue or logging to an external service.
     throw new Error('Could not process commissions.');
   }
+}
+
+export async function getUserEarnings(userId: string): Promise<number> {
+    const commissionsCollection = collection(db, 'commissions');
+    const q = query(commissionsCollection, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return 0;
+    }
+
+    return querySnapshot.docs.reduce((total, doc) => {
+        const commission = doc.data() as Commission;
+        return total + commission.amount;
+    }, 0);
+}
+
+export async function getTotalCommissionPaid(): Promise<number> {
+    const commissionsCollection = collection(db, 'commissions');
+    const querySnapshot = await getDocs(commissionsCollection);
+
+    if (querySnapshot.empty) {
+        return 0;
+    }
+
+    return querySnapshot.docs.reduce((total, doc) => {
+        const commission = doc.data() as Commission;
+        return total + commission.amount;
+    }, 0);
 }

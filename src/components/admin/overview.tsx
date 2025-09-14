@@ -1,15 +1,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { IndianRupee, Users, ShoppingCart } from 'lucide-react';
+import { IndianRupee, Users, ShoppingCart, Percent } from 'lucide-react';
 import { getTotalUsers } from '@/lib/user-service';
 import { getTotalSalesStats } from '@/lib/sales-service';
 import { adminData } from '@/lib/data';
+import { getTotalCommissionPaid } from '@/lib/commission-service';
 
 export default async function AdminOverview() {
   const { currency } = adminData.overview;
   
   const totalUsers = await getTotalUsers();
   const { totalSales, totalOrders } = await getTotalSalesStats();
+  const totalCommission = await getTotalCommissionPaid();
 
   const stats = [
     {
@@ -18,7 +20,7 @@ export default async function AdminOverview() {
       icon: Users,
     },
     {
-      title: 'Total Sales',
+      title: 'Total Sales Volume',
       value: new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency,
@@ -26,9 +28,12 @@ export default async function AdminOverview() {
       icon: IndianRupee,
     },
     {
-      title: 'Total Orders',
-      value: totalOrders.toLocaleString(),
-      icon: ShoppingCart,
+      title: 'Total Commission Paid',
+      value: new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency,
+      }).format(totalCommission),
+      icon: Percent,
     },
   ];
 

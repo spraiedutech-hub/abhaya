@@ -8,7 +8,7 @@ export default function EarningsOverview() {
   const stats = [
     {
       title: 'Total Earnings',
-      value: new Intl.NumberFormat('en-US', {
+      value: new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency,
       }).format(totalEarnings),

@@ -1,10 +1,10 @@
 import { BadgeCheck, Trophy, Zap } from 'lucide-react';
 
 export const earningsData = {
-  totalEarnings: 7845.50,
+  totalEarnings: 650000.00,
   rank: 'Gold Director',
   status: 'Active',
-  currency: 'USD',
+  currency: 'INR',
 };
 
 export const downlineData = {

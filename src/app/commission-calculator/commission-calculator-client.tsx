@@ -69,16 +69,16 @@ export default function CommissionCalculatorClient() {
           <CardHeader>
             <CardTitle>Input Parameters</CardTitle>
             <CardDescription>
-              Provide details about your network to generate a forecast.
+              Describe your team structure and sales to generate a forecast.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="networkStructure">Network Structure</Label>
+              <Label htmlFor="networkStructure">Your Business Model</Label>
               <Textarea
                 id="networkStructure"
                 name="networkStructure"
-                placeholder="e.g., 3 levels deep, 5 people per level, 10% commission on level 1, 5% on level 2..."
+                placeholder="e.g., As a Supervisor, I get 30% on my direct sales and 10% from my 5 Direct Workers' sales. If a worker becomes a Supervisor, they get 20% on their sales and 10% on their team's sales."
                 rows={5}
                 required
               />
@@ -88,7 +88,7 @@ export default function CommissionCalculatorClient() {
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="salesVolume">Total Sales Volume</Label>
+                <Label htmlFor="salesVolume">Your Team's Total Sales Volume</Label>
                 <Input
                   id="salesVolume"
                   name="salesVolume"

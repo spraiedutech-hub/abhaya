@@ -1,14 +1,14 @@
 'use server';
 
 import { z } from 'zod';
-import { recordSale } from '@/lib/sales-service';
-import { revalidatePath } from 'next/cache';
 import { addUser } from '@/lib/user-service';
+import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Please enter a name.'),
   email: z.string().email('Please enter a valid email.'),
   rank: z.enum(['Supervisor', 'Direct Distributor']),
+  uplineId: z.string().min(1, 'Please select a supervisor.'),
 });
 
 type State = {
@@ -18,6 +18,7 @@ type State = {
     name?: string[];
     email?: string[];
     rank?: string[];
+    uplineId?: string[];
   };
 };
 
@@ -26,6 +27,7 @@ export async function createNewUserAction(prevState: State, formData: FormData):
     name: formData.get('name'),
     email: formData.get('email'),
     rank: formData.get('rank'),
+    uplineId: formData.get('uplineId'),
   });
 
   if (!validatedFields.success) {
@@ -41,6 +43,7 @@ export async function createNewUserAction(prevState: State, formData: FormData):
         name: validatedFields.data.name,
         email: validatedFields.data.email,
         rank: validatedFields.data.rank,
+        uplineId: validatedFields.data.uplineId,
     });
     
     // Revalidate the admin page to show new data

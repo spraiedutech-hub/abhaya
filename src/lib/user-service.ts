@@ -10,24 +10,39 @@ export interface User {
   status: 'Active' | 'Inactive';
   rank: 'Supervisor' | 'Direct Distributor';
   joinedDate: string;
+  uplineId?: string; // ID of the user who recruited them
 }
 
 // Seed data - only used if the users collection is empty
 const seedUsers: Omit<User, 'id'>[] = [
     { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' },
     { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' },
-    { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01' },
-    { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05' },
-    { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10' },
+    { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: 'NEEDS_ALICE_ID' },
+    { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: 'NEEDS_BOB_ID' },
+    { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: 'NEEDS_ALICE_ID' },
 ];
 
 async function seedInitialUsers() {
     const usersCollection = collection(db, 'users');
     const batch = writeBatch(db);
-    seedUsers.forEach(user => {
+
+    const aliceRef = doc(usersCollection);
+    const bobRef = doc(usersCollection);
+
+    batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
+    batch.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
+
+    const otherUsers = [
+        { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
+        { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: bobRef.id },
+        { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: aliceRef.id },
+    ];
+
+    otherUsers.forEach(user => {
         const docRef = doc(usersCollection);
         batch.set(docRef, user);
     });
+    
     await batch.commit();
     console.log('Initial users have been seeded to Firestore.');
 }
@@ -54,13 +69,12 @@ export async function getAllUsers(): Promise<User[]> {
 
   if (userSnapshot.empty) {
       await seedInitialUsers();
+      // Re-fetch after seeding
       const seededSnapshot = await getDocs(usersCollection);
-      const userList = seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-      return userList;
+      return seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
   }
 
-  const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
-  return userList;
+  return userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
 
 export async function getUsersByIds(userIds: string[]): Promise<User[]> {
@@ -94,4 +108,23 @@ export async function activateUser(userId: string): Promise<void> {
         console.error("Error activating user: ", e);
         throw new Error("Could not activate user.");
     }
+}
+
+export async function getSupervisors(): Promise<User[]> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('rank', '==', 'Supervisor'), where('status', '==', 'Active'));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+        // If there are no supervisors, we might need to handle this case.
+        // For now, let's ensure there are users first.
+        const allUsers = await getAllUsers();
+        if (allUsers.length === 0) {
+             // getAllUsers will seed, so we re-call getSupervisors
+             return await getSupervisors();
+        }
+        return [];
+    }
+    
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }

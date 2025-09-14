@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, UserPlus } from 'lucide-react';
+import type { User } from '@/lib/user-service';
 
 const initialState = {
   success: undefined,
@@ -36,7 +37,7 @@ function SubmitButton() {
   );
 }
 
-export default function AddUserClient() {
+export default function AddUserClient({ supervisors }: { supervisors: User[] }) {
   const [state, formAction] = useActionState(createNewUserAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -92,20 +93,40 @@ export default function AddUserClient() {
               )}
             </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="rank">Initial Rank</Label>
-            <Select name="rank" required defaultValue="Direct Distributor">
-              <SelectTrigger id="rank">
-                <SelectValue placeholder="Select a rank" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Direct Distributor">Direct Distributor</SelectItem>
-                <SelectItem value="Supervisor">Supervisor</SelectItem>
-              </SelectContent>
-            </Select>
-            {state.errors?.rank && (
-              <p className="text-sm text-destructive">{state.errors.rank[0]}</p>
-            )}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="rank">Initial Rank</Label>
+              <Select name="rank" required defaultValue="Direct Distributor">
+                <SelectTrigger id="rank">
+                  <SelectValue placeholder="Select a rank" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Direct Distributor">Direct Distributor</SelectItem>
+                  <SelectItem value="Supervisor">Supervisor</SelectItem>
+                </SelectContent>
+              </Select>
+              {state.errors?.rank && (
+                <p className="text-sm text-destructive">{state.errors.rank[0]}</p>
+              )}
+            </div>
+             <div className="grid gap-2">
+              <Label htmlFor="uplineId">Recruiter (Supervisor)</Label>
+              <Select name="uplineId" required>
+                <SelectTrigger id="uplineId">
+                  <SelectValue placeholder="Select a supervisor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {supervisors.map(supervisor => (
+                    <SelectItem key={supervisor.id} value={supervisor.id}>
+                      {supervisor.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {state.errors?.uplineId && (
+                <p className="text-sm text-destructive">{state.errors.uplineId[0]}</p>
+              )}
+            </div>
           </div>
         </CardContent>
         <CardFooter>

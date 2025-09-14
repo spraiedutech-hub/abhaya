@@ -2,7 +2,7 @@ import { BadgeCheck, Trophy, Zap } from 'lucide-react';
 
 export const earningsData = {
   totalEarnings: 650000.00,
-  rank: 'Gold Director',
+  rank: 'Supervisor',
   status: 'Active',
   currency: 'INR',
 };
@@ -79,11 +79,11 @@ export const adminData = {
     currency: 'INR',
   },
   users: [
-    { id: 'user-1', name: 'Alice', status: 'Active', rank: 'Silver Director', joinedDate: '2023-01-15' },
-    { id: 'user-2', name: 'Bob', status: 'Active', rank: 'Bronze Director', joinedDate: '2023-02-20' },
-    { id: 'user-3', name: 'Charlie', status: 'Active', rank: 'Distributor', joinedDate: '2023-03-01' },
-    { id: 'user-4', name: 'David', status: 'Inactive', rank: 'Distributor', joinedDate: '2023-03-05' },
-    { id: 'user-5', name: 'Eve', status: 'Active', rank: 'Distributor', joinedDate: '2023-04-10' },
+    { id: 'user-1', name: 'Alice', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' },
+    { id: 'user-2', name: 'Bob', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' },
+    { id: 'user-3', name: 'Charlie', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01' },
+    { id: 'user-4', name: 'David', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05' },
+    { id: 'user-5', name: 'Eve', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10' },
   ],
   recentSales: [
     { id: 'sale-1', name: 'Frank', email: 'frank@example.com', amount: 2500.00 },

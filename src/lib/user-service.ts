@@ -8,7 +8,7 @@ export interface User {
   name: string;
   email: string;
   status: 'Active' | 'Inactive';
-  rank: 'Supervisor' | 'Direct Distributor';
+  rank: 'Supervisor' | 'New Supervisor' | 'Direct Distributor';
   joinedDate: string;
   uplineId?: string; // ID of the user who recruited them
 }
@@ -131,7 +131,7 @@ export async function activateUser(userId: string): Promise<void> {
 
 export async function getSupervisors(): Promise<User[]> {
     const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, where('rank', '==', 'Supervisor'), where('status', '==', 'Active'));
+    const q = query(usersCollection, where('rank', 'in', ['Supervisor', 'New Supervisor']), where('status', '==', 'Active'));
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {

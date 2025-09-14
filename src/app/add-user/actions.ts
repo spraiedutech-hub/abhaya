@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 const formSchema = z.object({
   name: z.string().min(1, 'Please enter a name.'),
   email: z.string().email('Please enter a valid email.'),
-  rank: z.enum(['Supervisor', 'Direct Distributor']),
+  rank: z.enum(['Supervisor', 'New Supervisor', 'Direct Distributor']),
   uplineId: z.string().min(1, 'Please select a supervisor.'),
 });
 

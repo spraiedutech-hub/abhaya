@@ -17,21 +17,19 @@ export interface Commission {
   calculationDate: Timestamp;
 }
 
-// NOTE: For simplicity, this model assumes a "Newly Promoted Supervisor"
-// is any Supervisor. A more complex system might track their first month.
 function getPersonalCommissionRate(user: User): number {
     if (user.rank === 'Supervisor') {
-        // "Newly Promoted Supervisor" gets 20%, but for now, we'll treat all supervisors the same for simplicity.
-        // A real system might check the promotion date.
-        // Let's assume the 30% for established supervisors is the main rule.
-        return 0.30; 
+        return 0.30;
+    }
+    if (user.rank === 'New Supervisor') {
+        return 0.20;
     }
     // Direct Distributors don't earn personal commission in this model, only uplines do.
     return 0;
 }
 
 function getUplineCommissionRate(upline: User): number {
-    if (upline.rank === 'Supervisor') {
+    if (upline.rank === 'Supervisor' || upline.rank === 'New Supervisor') {
         return 0.10;
     }
     return 0;
@@ -52,7 +50,6 @@ export async function calculateAndRecordCommissions(sale: Sale): Promise<void> {
     const commissionsCollection = collection(db, 'commissions');
 
     // 1. Calculate Personal Commission for the seller
-    // This model gives personal commission only to Supervisors.
     const personalRate = getPersonalCommissionRate(seller);
     if (personalRate > 0) {
       const personalCommissionAmount = sale.amount * personalRate;

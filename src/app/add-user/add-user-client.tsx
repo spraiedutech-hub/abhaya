@@ -102,6 +102,7 @@ export default function AddUserClient({ supervisors }: { supervisors: User[] }) 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Direct Distributor">Direct Distributor</SelectItem>
+                  <SelectItem value="New Supervisor">New Supervisor</SelectItem>
                   <SelectItem value="Supervisor">Supervisor</SelectItem>
                 </SelectContent>
               </Select>

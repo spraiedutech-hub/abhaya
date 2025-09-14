@@ -1,18 +1,40 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndianRupee, BarChart, UserCheck } from 'lucide-react';
 import { getUserEarnings } from '@/lib/commission-service';
-import { getUsersByIds } from '@/lib/user-service';
+import { getUserByAuthId } from '@/lib/user-service';
 import { adminData } from '@/lib/data';
+import { cookies } from 'next/headers';
+import { auth } from '@/lib/firebase-admin';
 
-// In a real app with authentication, this ID would come from the logged-in user's session.
-// For now, we'll hardcode Alice's ID to demonstrate the dynamic data.
-const MOCKED_USER_ID = 'Gth4q47v6sE3b2iDpQzN'; // This is a seeded ID for Alice
+async function getLoggedInUser() {
+    const session = cookies().get('session')?.value;
+    if (!session) return null;
+
+    try {
+        const decodedToken = await auth.verifySessionCookie(session, true);
+        const user = await getUserByAuthId(decodedToken.uid);
+        return user;
+    } catch (error) {
+        return null;
+    }
+}
+
 
 export default async function EarningsOverview() {
   const { currency } = adminData;
-  const totalEarnings = await getUserEarnings(MOCKED_USER_ID);
-  const users = await getUsersByIds([MOCKED_USER_ID]);
-  const currentUser = users[0] || { rank: 'N/A', status: 'Unknown' };
+  const currentUser = await getLoggedInUser();
+
+  if (!currentUser) {
+    // This should ideally not happen due to middleware, but as a fallback:
+     return (
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            <Card><CardHeader><CardTitle>Please log in to see your earnings.</CardTitle></CardHeader></Card>
+        </div>
+     )
+  }
+
+  const totalEarnings = await getUserEarnings(currentUser.id);
 
   const stats = [
     {

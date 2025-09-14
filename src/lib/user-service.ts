@@ -1,10 +1,12 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch, updateDoc, Timestamp, getDocFromCache, limit } from 'firebase/firestore';
 
 export interface User {
   id: string;
+  authUid?: string;
   name: string;
   email: string;
   status: 'Active' | 'Inactive';
@@ -21,6 +23,8 @@ async function seedInitialUsers() {
     const aliceRef = doc(usersCollection, 'Gth4q47v6sE3b2iDpQzN'); // Hardcoded ID for Alice
     const bobRef = doc(usersCollection);
 
+    // Note: In a real app with auth, you'd create these users via the auth system
+    // and store their auth UIDs. For seeding, we'll omit authUid.
     batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
     batch.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
 
@@ -39,7 +43,7 @@ async function seedInitialUsers() {
     console.log('Initial users have been seeded to Firestore.');
 }
 
-export async function addUser(userData: Omit<User, 'id' | 'status' | 'joinedDate'>): Promise<string> {
+export async function addUserToFirestore(userData: Omit<User, 'id' | 'status' | 'joinedDate'>): Promise<string> {
     try {
         const usersCollection = collection(db, 'users');
         const docRef = await addDoc(usersCollection, {
@@ -96,6 +100,18 @@ export async function getUsersByIds(userIds: string[]): Promise<User[]> {
   const q = query(usersCollection, where(documentId(), 'in', userIds));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+}
+
+export async function getUserByAuthId(authId: string): Promise<User | null> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('authUid', '==', authId), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as User;
 }
 
 export async function getTotalUsers(): Promise<number> {

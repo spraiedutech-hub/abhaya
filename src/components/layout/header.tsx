@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -20,18 +21,20 @@ import {
   Shield,
   UserPlus,
   DollarSign,
+  LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { logoutAction } from './actions';
+
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
-  { href: '/add-user', label: 'Add User', icon: UserPlus },
   { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },
@@ -39,6 +42,11 @@ const navItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  
+  const handleLogout = async () => {
+    await logoutAction();
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
@@ -106,7 +114,10 @@ export default function Header() {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2" />
+            Logout
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

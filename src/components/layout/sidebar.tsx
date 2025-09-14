@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -24,7 +25,6 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
-  { href: '/add-user', label: 'Add User', icon: UserPlus },
   { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },

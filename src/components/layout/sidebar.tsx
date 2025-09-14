@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -14,6 +15,7 @@ import {
   BookOpen,
   Headset,
   Shield,
+  PlusCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
@@ -22,6 +24,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
+  { href: '/record-sale', label: 'Record Sale', icon: PlusCircle },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },
 ];

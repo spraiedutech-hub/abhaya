@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -18,6 +19,7 @@ import {
   Headset,
   Menu,
   Shield,
+  PlusCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,6 +31,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
+  { href: '/record-sale', label: 'Record Sale', icon: PlusCircle },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },
 ];

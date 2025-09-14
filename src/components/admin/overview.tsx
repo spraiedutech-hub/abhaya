@@ -1,9 +1,15 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IndianRupee, Users, ShoppingCart } from 'lucide-react';
+import { getTotalUsers } from '@/lib/user-service';
+import { getTotalSalesStats } from '@/lib/sales-service';
 import { adminData } from '@/lib/data';
 
-export default function AdminOverview() {
-  const { totalUsers, totalSales, totalOrders, currency } = adminData.overview;
+export default async function AdminOverview() {
+  const { currency } = adminData.overview;
+  
+  const totalUsers = await getTotalUsers();
+  const { totalSales, totalOrders } = await getTotalSalesStats();
 
   const stats = [
     {

@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -8,7 +9,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { adminData } from '@/lib/data';
 import { Users } from 'lucide-react';
 import {
   DropdownMenu,
@@ -19,9 +19,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
+import { getAllUsers } from '@/lib/user-service';
 
-export default function UserManagement() {
-  const { users } = adminData;
+export default async function UserManagement() {
+  const users = await getAllUsers();
   return (
     <Card>
       <CardHeader>

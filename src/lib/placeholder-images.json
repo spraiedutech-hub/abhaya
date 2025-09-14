@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "training-1",
+      "description": "A person pointing at a business chart during a presentation.",
+      "imageUrl": "https://picsum.photos/seed/training-1/600/400",
+      "imageHint": "business chart"
+    },
+    {
+      "id": "training-2",
+      "description": "A person writing on a checklist on a clipboard.",
+      "imageUrl": "https://picsum.photos/seed/training-2/600/400",
+      "imageHint": "checklist planning"
+    },
+    {
+      "id": "training-3",
+      "description": "A diverse group of people in a collaborative team meeting.",
+      "imageUrl": "https://picsum.photos/seed/training-3/600/400",
+      "imageHint": "team meeting"
+    },
+    {
+      "id": "training-4",
+      "description": "A smartphone displaying social media icons and notifications.",
+      "imageUrl": "https://picsum.photos/seed/training-4/600/400",
+      "imageHint": "social media"
+    }
+  ]
 }

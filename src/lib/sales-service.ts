@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import type { User } from './user-service';
 import { getUsersByIds } from './user-service';
+import { calculateAndRecordCommissions } from './commission-service';
 
 export interface Sale {
   id?: string;
@@ -28,13 +29,18 @@ export interface SaleWithUser extends Sale {
   user: User;
 }
 
-export async function recordSale(saleData: Omit<Sale, 'date'>): Promise<string> {
+export async function recordSale(saleData: Omit<Sale, 'date' | 'id'>): Promise<string> {
   try {
     const salesCollection = collection(db, 'sales');
-    const docRef = await addDoc(salesCollection, {
+    const saleWithTimestamp = {
       ...saleData,
       date: Timestamp.now(),
-    });
+    };
+    const docRef = await addDoc(salesCollection, saleWithTimestamp);
+    
+    // Trigger commission calculation after a sale is successfully recorded
+    await calculateAndRecordCommissions({ id: docRef.id, ...saleWithTimestamp });
+    
     return docRef.id;
   } catch (error) {
     console.error('Error recording sale:', error);
@@ -59,7 +65,7 @@ export async function getRecentSales(count: number = 5): Promise<SaleWithUser[]>
 
   return sales.map(sale => ({
     ...sale,
-    user: usersMap.get(sale.userId) || { id: sale.userId, name: 'Unknown User', email: '' },
+    user: usersMap.get(sale.userId) || { id: sale.userId, name: 'Unknown User', email: '', rank: 'Direct Distributor', status: 'Inactive', joinedDate: '' },
   }));
 }
 

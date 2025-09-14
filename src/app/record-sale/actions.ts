@@ -1,33 +1,30 @@
 'use server';
 
 import { z } from 'zod';
-import { addUser } from '@/lib/user-service';
+import { recordSale } from '@/lib/sales-service';
 import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Please enter a name.'),
-  email: z.string().email('Please enter a valid email.'),
-  rank: z.enum(['Supervisor', 'Direct Distributor']),
-  uplineId: z.string().min(1, 'Please select a supervisor.'),
+  userId: z.string().min(1, 'Please select a user.'),
+  amount: z.coerce.number().positive('Please enter a positive sale amount.'),
+  product: z.string().min(1, 'Please enter a product name or description.'),
 });
 
 type State = {
   success?: boolean;
   message?: string;
   errors?: {
-    name?: string[];
-    email?: string[];
-    rank?: string[];
-    uplineId?: string[];
+    userId?: string[];
+    amount?: string[];
+    product?: string[];
   };
 };
 
-export async function createNewUserAction(prevState: State, formData: FormData): Promise<State> {
+export async function recordSaleAction(prevState: State, formData: FormData): Promise<State> {
   const validatedFields = formSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    rank: formData.get('rank'),
-    uplineId: formData.get('uplineId'),
+    userId: formData.get('userId'),
+    amount: formData.get('amount'),
+    product: formData.get('product'),
   });
 
   if (!validatedFields.success) {
@@ -39,25 +36,24 @@ export async function createNewUserAction(prevState: State, formData: FormData):
   }
 
   try {
-    await addUser({
-        name: validatedFields.data.name,
-        email: validatedFields.data.email,
-        rank: validatedFields.data.rank,
-        uplineId: validatedFields.data.uplineId,
+    await recordSale({
+      userId: validatedFields.data.userId,
+      amount: validatedFields.data.amount,
+      product: validatedFields.data.product,
     });
     
-    // Revalidate the admin page to show new data
     revalidatePath('/admin');
+    revalidatePath('/record-sale');
 
     return {
       success: true,
-      message: 'User created successfully. They can be activated in the Admin Panel.',
+      message: 'Sale recorded successfully!',
     };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      message: 'An unexpected error occurred while creating the user.',
+      message: 'An unexpected error occurred while recording the sale.',
     };
   }
 }

@@ -77,6 +77,25 @@ export async function getAllUsers(): Promise<User[]> {
   return userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
 
+export async function getActiveUsers(): Promise<User[]> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('status', '==', 'Active'));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+        // Ensure there are users first.
+        const allUsers = await getAllUsers();
+        if (allUsers.length === 0) {
+             // getAllUsers will seed, so we re-call
+             return await getActiveUsers();
+        }
+        return [];
+    }
+    
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+}
+
+
 export async function getUsersByIds(userIds: string[]): Promise<User[]> {
   if (userIds.length === 0) {
     return [];

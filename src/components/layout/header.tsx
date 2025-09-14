@@ -19,6 +19,7 @@ import {
   Menu,
   Shield,
   UserPlus,
+  DollarSign,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -30,7 +31,8 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
-  { href: '/record-sale', label: 'Add User', icon: UserPlus },
+  { href: '/add-user', label: 'Add User', icon: UserPlus },
+  { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },
 ];

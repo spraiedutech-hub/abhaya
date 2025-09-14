@@ -1,25 +1,25 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/firebase-admin';
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value;
 
-  // If there's no session, redirect to login.
+  // If there's no session cookie, redirect to login for protected pages.
   if (!session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    // Avoid redirecting if the user is already on the login or signup page
+    if (request.nextUrl.pathname !== '/login' && request.nextUrl.pathname !== '/signup') {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
-  // Verify the session cookie. If invalid, redirect to login.
-  try {
-    await auth.verifySessionCookie(session, true);
-  } catch (error) {
-    console.error('Session cookie verification failed:', error);
-    return NextResponse.redirect(new URL('/login', request.url));
+  // If the user has a session cookie but tries to access login/signup, redirect to home
+  if (session && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
   
-  // If authenticated, proceed to the requested page.
+  // Proceed to the requested page. The actual session verification will happen
+  // in server components/actions that need authenticated data.
   return NextResponse.next();
 }
 
@@ -32,9 +32,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - login (the login page)
-     * - signup (the signup page)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|login|signup).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

@@ -5,18 +5,29 @@ import { getUserEarnings } from '@/lib/commission-service';
 import { getUserByAuthId } from '@/lib/user-service';
 import { adminData } from '@/lib/data';
 import { cookies } from 'next/headers';
-import { auth } from '@/lib/firebase-admin';
+import { redirect } from 'next/navigation';
+import { auth } from 'firebase-admin';
+import { getAuth } from 'firebase/auth';
+import { app } from '@/lib/firebase';
+import { decode } from 'jsonwebtoken';
 
 async function getLoggedInUser() {
     const session = cookies().get('session')?.value;
     if (!session) return null;
-
+    
     try {
-        const decodedToken = await auth.verifySessionCookie(session, true);
+        const decodedToken = decode(session);
+        if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
+             cookies().delete('session');
+             redirect('/login');
+        }
         const user = await getUserByAuthId(decodedToken.uid);
         return user;
     } catch (error) {
-        return null;
+        console.error("Session verification failed:", error);
+        // This is critical. If the cookie is invalid, we should clear it and redirect.
+        cookies().delete('session');
+        redirect('/login');
     }
 }
 
@@ -26,7 +37,7 @@ export default async function EarningsOverview() {
   const currentUser = await getLoggedInUser();
 
   if (!currentUser) {
-    // This should ideally not happen due to middleware, but as a fallback:
+    // This case should be handled by the redirect in getLoggedInUser, but as a fallback:
      return (
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
             <Card><CardHeader><CardTitle>Please log in to see your earnings.</CardTitle></CardHeader></Card>

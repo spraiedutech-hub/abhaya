@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, BarChart, UserCheck } from 'lucide-react';
+import { IndianRupee, BarChart, UserCheck } from 'lucide-react';
 import { earningsData } from '@/lib/data';
 
 export default function EarningsOverview() {
@@ -12,7 +12,7 @@ export default function EarningsOverview() {
         style: 'currency',
         currency,
       }).format(totalEarnings),
-      icon: DollarSign,
+      icon: IndianRupee,
     },
     {
       title: 'Current Rank',

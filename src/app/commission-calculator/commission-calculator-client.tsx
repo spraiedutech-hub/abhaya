@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getCommissionForecast } from './actions';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -48,7 +49,7 @@ function SubmitButton() {
 }
 
 export default function CommissionCalculatorClient() {
-  const [state, formAction] = useFormState(getCommissionForecast, initialState);
+  const [state, formAction] = useActionState(getCommissionForecast, initialState);
   const { toast } = useToast();
 
   useEffect(() => {

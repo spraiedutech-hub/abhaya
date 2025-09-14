@@ -1,16 +1,15 @@
-
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch, updateDoc, Timestamp } from 'firebase/firestore';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  status?: 'Active' | 'Inactive';
-  rank?: 'Supervisor' | 'Direct Distributor';
-  joinedDate?: string;
+  status: 'Active' | 'Inactive';
+  rank: 'Supervisor' | 'Direct Distributor';
+  joinedDate: string;
 }
 
 // Seed data - only used if the users collection is empty
@@ -33,12 +32,26 @@ async function seedInitialUsers() {
     console.log('Initial users have been seeded to Firestore.');
 }
 
+export async function addUser(userData: Omit<User, 'id' | 'status' | 'joinedDate'>): Promise<string> {
+    try {
+        const usersCollection = collection(db, 'users');
+        const docRef = await addDoc(usersCollection, {
+            ...userData,
+            status: 'Inactive',
+            joinedDate: new Date().toISOString().split('T')[0],
+        });
+        return docRef.id;
+    } catch(e) {
+        console.error("Error adding user: ", e);
+        throw new Error("Could not create user.");
+    }
+}
+
 
 export async function getAllUsers(): Promise<User[]> {
   const usersCollection = collection(db, 'users');
   const userSnapshot = await getDocs(usersCollection);
 
-  // If there are no users, seed them for the first time
   if (userSnapshot.empty) {
       await seedInitialUsers();
       const seededSnapshot = await getDocs(usersCollection);
@@ -63,11 +76,22 @@ export async function getUsersByIds(userIds: string[]): Promise<User[]> {
 export async function getTotalUsers(): Promise<number> {
     const usersCollection = collection(db, 'users');
     const userSnapshot = await getDocs(usersCollection);
-     // If there are no users, seed them and recount
     if (userSnapshot.empty) {
         await seedInitialUsers();
         const seededSnapshot = await getDocs(usersCollection);
         return seededSnapshot.size;
     }
     return userSnapshot.size;
+}
+
+export async function activateUser(userId: string): Promise<void> {
+    try {
+        const userDoc = doc(db, 'users', userId);
+        await updateDoc(userDoc, {
+            status: 'Active'
+        });
+    } catch(e) {
+        console.error("Error activating user: ", e);
+        throw new Error("Could not activate user.");
+    }
 }

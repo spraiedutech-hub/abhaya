@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -15,7 +14,7 @@ import {
   BookOpen,
   Headset,
   Shield,
-  PlusCircle,
+  UserPlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
@@ -24,7 +23,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
-  { href: '/record-sale', label: 'Record Sale', icon: PlusCircle },
+  { href: '/record-sale', label: 'Add User', icon: UserPlus },
   { href: '/support', label: 'Support', icon: Headset },
   { href: '/admin', label: 'Admin', icon: Shield },
 ];
@@ -51,7 +50,7 @@ export default function Sidebar() {
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
                     {
-                      'bg-accent text-accent-foreground': pathname === item.href || (pathname.startsWith('/admin') && item.href === '/admin'),
+                      'bg-accent text-accent-foreground': pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/'),
                     }
                   )}
                 >

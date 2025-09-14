@@ -1,21 +1,17 @@
-
 import MainLayout from '@/components/main-layout';
-import RecordSaleClient from './record-sale-client';
-import { getAllUsers } from '@/lib/user-service';
+import AddUserClient from './add-user-client';
 
 export default async function RecordSalePage() {
-  const users = await getAllUsers();
-
   return (
     <MainLayout>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col">
-          <h1 className="text-3-xl font-bold tracking-tight">Record a New Sale</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Add a New User</h1>
           <p className="text-muted-foreground">
-            Enter the details for a new transaction.
+            Create a new user profile. They will be inactive until activated by an admin.
           </p>
         </div>
-        <RecordSaleClient users={users} />
+        <AddUserClient />
       </div>
     </MainLayout>
   );

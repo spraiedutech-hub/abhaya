@@ -2,6 +2,8 @@ import MainLayout from '@/components/main-layout';
 import AdminOverview from '@/components/admin/overview';
 import UserManagement from '@/components/admin/user-management';
 import RecentSales from '@/components/admin/recent-sales';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminPage() {
   return (
@@ -13,12 +15,18 @@ export default function AdminPage() {
             Manage users, monitor sales, and view site-wide metrics.
           </p>
         </div>
-        <AdminOverview />
+        <Suspense fallback={<Skeleton className="h-24" />}>
+          <AdminOverview />
+        </Suspense>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2">
-            <UserManagement />
+            <Suspense fallback={<Skeleton className="h-96" />}>
+              <UserManagement />
+            </Suspense>
           </div>
-          <RecentSales />
+          <Suspense fallback={<Skeleton className="h-96" />}>
+            <RecentSales />
+          </Suspense>
         </div>
       </div>
     </MainLayout>

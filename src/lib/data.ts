@@ -70,3 +70,26 @@ export const trainingData = [
     image: { id: 'training-4', hint: 'social media' }
   }
 ];
+
+export const adminData = {
+  overview: {
+    totalUsers: 1250,
+    totalSales: 4500000.00,
+    totalOrders: 320,
+    currency: 'INR',
+  },
+  users: [
+    { id: 'user-1', name: 'Alice', status: 'Active', rank: 'Silver Director', joinedDate: '2023-01-15' },
+    { id: 'user-2', name: 'Bob', status: 'Active', rank: 'Bronze Director', joinedDate: '2023-02-20' },
+    { id: 'user-3', name: 'Charlie', status: 'Active', rank: 'Distributor', joinedDate: '2023-03-01' },
+    { id: 'user-4', name: 'David', status: 'Inactive', rank: 'Distributor', joinedDate: '2023-03-05' },
+    { id: 'user-5', name: 'Eve', status: 'Active', rank: 'Distributor', joinedDate: '2023-04-10' },
+  ],
+  recentSales: [
+    { id: 'sale-1', name: 'Frank', email: 'frank@example.com', amount: 2500.00 },
+    { id: 'sale-2', name: 'Grace', email: 'grace@example.com', amount: 1500.00 },
+    { id: 'sale-3', name: 'Heidi', email: 'heidi@example.com', amount: 5000.00 },
+    { id: 'sale-4', name: 'Ivan', email: 'ivan@example.com', amount: 750.00 },
+  ],
+  currency: 'INR',
+}

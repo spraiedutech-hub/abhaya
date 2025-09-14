@@ -17,6 +17,7 @@ import {
   BookOpen,
   Headset,
   Menu,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
   { href: '/support', label: 'Support', icon: Headset },
+  { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
 export default function Header() {

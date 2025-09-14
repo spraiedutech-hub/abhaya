@@ -13,6 +13,7 @@ import {
   Calculator,
   BookOpen,
   Headset,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
@@ -22,6 +23,7 @@ const navItems = [
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
   { href: '/support', label: 'Support', icon: Headset },
+  { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
 export default function Sidebar() {
@@ -46,7 +48,7 @@ export default function Sidebar() {
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
                     {
-                      'bg-accent text-accent-foreground': pathname === item.href,
+                      'bg-accent text-accent-foreground': pathname === item.href || (pathname.startsWith('/admin') && item.href === '/admin'),
                     }
                   )}
                 >

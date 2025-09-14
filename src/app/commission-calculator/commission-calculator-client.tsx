@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Rocket, FileText, AlertTriangle, Loader2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const initialState = {
   success: undefined,
@@ -21,19 +22,28 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
-        <>
-         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-         Generating...
-        </>
-      ) : (
-        <>
-          <Rocket className="mr-2 h-4 w-4" />
-          Generate Forecast
-        </>
-      )}
-    </Button>
+    <TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+                {pending ? (
+                    <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                    </>
+                ) : (
+                    <>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Generate Forecast
+                    </>
+                )}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>Generate AI Commission Forecast</p>
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
   );
 }
 

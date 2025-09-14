@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Copy, Share2 } from 'lucide-react';
 import { referralCode } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 export default function ReferralCard() {
   const { toast } = useToast();
@@ -30,9 +31,18 @@ export default function ReferralCard() {
       <CardContent>
         <div className="flex items-center space-x-2">
           <Input value={referralCode} readOnly className="font-mono" />
-          <Button variant="outline" size="icon" onClick={handleCopy}>
-            <Copy className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={handleCopy}>
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Copy Code</p>
+                </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </CardContent>
     </Card>

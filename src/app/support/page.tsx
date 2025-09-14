@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Send } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function SupportPage() {
   const { toast } = useToast();
@@ -79,10 +80,19 @@ export default function SupportPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="ml-auto">
-                <Send className="mr-2 h-4 w-4" />
-                Submit Ticket
-              </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button type="submit" className="ml-auto">
+                                <Send className="mr-2 h-4 w-4" />
+                                Submit Ticket
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Send your message to the support team</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </CardFooter>
           </form>
         </Card>

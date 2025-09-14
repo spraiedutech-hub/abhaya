@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -72,18 +73,27 @@ export default function Header() {
         {/* Can add a search bar here if needed */}
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="overflow-hidden rounded-full"
-          >
-            <Avatar>
-              <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" alt="User Avatar" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="overflow-hidden rounded-full"
+                >
+                  <Avatar>
+                    <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" alt="User Avatar" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>My Account</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />

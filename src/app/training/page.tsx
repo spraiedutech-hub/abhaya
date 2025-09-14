@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Video, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function TrainingPage() {
   return (
@@ -47,12 +48,21 @@ export default function TrainingPage() {
                   <p className="text-muted-foreground text-sm">{item.description}</p>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="#">
-                      {item.type === 'video' ? 'Watch Now' : 'Read Guide'}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="outline" className="w-full">
+                                    <Link href="#">
+                                    {item.type === 'video' ? 'Watch Now' : 'Read Guide'}
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Access the training material</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </CardFooter>
               </Card>
             );

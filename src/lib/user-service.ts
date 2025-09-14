@@ -1,8 +1,10 @@
-
 'use server';
 
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch, updateDoc, Timestamp, getDocFromCache, limit } from 'firebase/firestore';
+import { decode } from 'jsonwebtoken';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export interface User {
   id: string;
@@ -113,6 +115,27 @@ export async function getUserByAuthId(authId: string): Promise<User | null> {
     const doc = querySnapshot.docs[0];
     return { id: doc.id, ...doc.data() } as User;
 }
+
+export async function getLoggedInUser(): Promise<User | null> {
+    const session = cookies().get('session')?.value;
+    if (!session) return null;
+    
+    try {
+        const decodedToken = decode(session);
+        if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
+             cookies().delete('session');
+             redirect('/login');
+        }
+        const user = await getUserByAuthId(decodedToken.uid);
+        return user;
+    } catch (error) {
+        console.error("Session verification failed:", error);
+        // This is critical. If the cookie is invalid, we should clear it and redirect.
+        cookies().delete('session');
+        redirect('/login');
+    }
+}
+
 
 export async function getTotalUsers(): Promise<number> {
     const usersCollection = collection(db, 'users');

@@ -4,18 +4,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Copy, Share2 } from 'lucide-react';
-import { referralCode } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { useEffect, useState } from 'react';
 
-export default function ReferralCard() {
+export default function ReferralCard({ userId }: { userId: string }) {
   const { toast } = useToast();
+  const [referralLink, setReferralLink] = useState('');
+
+  useEffect(() => {
+    // This ensures window.location.origin is only accessed on the client-side
+    const link = `${window.location.origin}/signup?ref=${userId}`;
+    setReferralLink(link);
+  }, [userId]);
+
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(referralCode);
+    if (!referralLink) return;
+    navigator.clipboard.writeText(referralLink);
     toast({
       title: 'Copied!',
-      description: 'Referral code copied to clipboard.',
+      description: 'Referral link copied to clipboard.',
     });
   };
 
@@ -24,13 +33,13 @@ export default function ReferralCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
-            Your Referral Code
+            Your Referral Link
         </CardTitle>
-        <CardDescription>Share this code to grow your network.</CardDescription>
+        <CardDescription>Share this link to grow your network.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-2">
-          <Input value={referralCode} readOnly className="font-mono" />
+          <Input value={referralLink} readOnly className="font-mono" placeholder="Generating link..." />
           <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
@@ -39,7 +48,7 @@ export default function ReferralCard() {
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>Copy Code</p>
+                    <p>Copy Link</p>
                 </TooltipContent>
             </Tooltip>
           </TooltipProvider>

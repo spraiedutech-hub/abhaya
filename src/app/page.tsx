@@ -3,8 +3,15 @@ import EarningsOverview from '@/components/dashboard/earnings-overview';
 import DownlineTree from '@/components/dashboard/downline-tree';
 import RewardsGrid from '@/components/dashboard/rewards-grid';
 import ReferralCard from '@/components/dashboard/referral-card';
+import { getLoggedInUser } from '@/lib/user-service';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
+export default async function Home() {
+  const user = await getLoggedInUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   return (
     <MainLayout>
       <div className="flex flex-col gap-8">
@@ -15,7 +22,7 @@ export default function Home() {
             <DownlineTree />
           </div>
           <div className="flex flex-col gap-8">
-            <ReferralCard />
+            <ReferralCard userId={user.id} />
             <RewardsGrid />
           </div>
         </div>

@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { signupAction } from './actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,8 +31,21 @@ function SubmitButton() {
   );
 }
 
-export default function SignupClient({ supervisors }: { supervisors: User[] }) {
+export default function SignupClient({ supervisors, referredBy }: { supervisors: User[], referredBy: User | null }) {
   const [state, formAction] = useActionState(signupAction, initialState);
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  // If a valid referral is provided, and that user isn't in the supervisors list, add them.
+  // This allows any active user to refer, not just supervisors.
+  const supervisorList = [...supervisors];
+  if (referredBy && !supervisorList.find(s => s.id === referredBy.id)) {
+      supervisorList.unshift(referredBy);
+  }
+
 
   return (
     <Card className="w-full max-w-md">
@@ -81,13 +93,18 @@ export default function SignupClient({ supervisors }: { supervisors: User[] }) {
            </div>
 
            <div className="grid gap-2">
-              <Label htmlFor="uplineId">Recruiter (Supervisor)</Label>
-              <Select name="uplineId" required>
-                <SelectTrigger id="uplineId">
-                  <SelectValue placeholder="Select a supervisor" />
+              <Label htmlFor="uplineId">Recruiter</Label>
+              <Select name="uplineId" required defaultValue={referredBy?.id}>
+                <SelectTrigger id="uplineId" disabled={!!referredBy}>
+                  <SelectValue placeholder="Select a recruiter" />
                 </SelectTrigger>
                 <SelectContent>
-                  {supervisors.map(supervisor => (
+                  {referredBy && (
+                    <SelectItem key={referredBy.id} value={referredBy.id}>
+                      {referredBy.name}
+                    </SelectItem>
+                  )}
+                   {!referredBy && supervisors.map(supervisor => (
                     <SelectItem key={supervisor.id} value={supervisor.id}>
                       {supervisor.name}
                     </SelectItem>

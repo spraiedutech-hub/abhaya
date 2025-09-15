@@ -104,3 +104,15 @@ export async function getSupervisors(): Promise<User[]> {
     
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
+
+export async function updateUserRank(userId: string, newRank: User['rank']): Promise<void> {
+    try {
+        const userDoc = doc(db, 'users', userId);
+        await updateDoc(userDoc, {
+            rank: newRank
+        });
+    } catch(e) {
+        console.error("Error updating user rank: ", e);
+        throw new Error("Could not update user rank.");
+    }
+}

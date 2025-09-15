@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { AuthError } from 'firebase/auth';
 import { cookies } from 'next/headers';
+import { getUserByAuthId } from '@/lib/user-service';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
@@ -36,6 +37,13 @@ export async function loginAction(prevState: State, formData: FormData): Promise
       validatedFields.data.email,
       validatedFields.data.password
     );
+
+    // Check user status in Firestore before setting session
+    const user = await getUserByAuthId(userCredential.user.uid);
+    if (!user || user.status === 'Inactive') {
+        // Even if auth is valid, we don't let them log in if their account is inactive in our system.
+        return { success: false, message: 'Your account is inactive and pending admin approval.' };
+    }
 
     const idToken = await userCredential.user.getIdToken();
     

@@ -64,7 +64,7 @@ export async function signupAction(prevState: State, formData: FormData): Promis
 
     return {
       success: true,
-      message: 'Account created successfully! Please sign in.',
+      message: 'Account created! It is now pending approval from an administrator.',
     };
   } catch (error) {
     const e = error as AuthError;

@@ -82,7 +82,11 @@ export default function CommissionCalculatorClient() {
                  </div>
                  <div className="flex items-center space-x-2">
                    <RadioGroupItem value="new_supervisor" id="new_supervisor" />
-                   <Label htmlFor="new_supervisor">Newly Promoted Supervisor (previously Direct Worker)</Label>
+                   <Label htmlFor="new_supervisor">New Supervisor</Label>
+                 </div>
+                 <div className="flex items-center space-x-2">
+                   <RadioGroupItem value="direct_distributor" id="direct_distributor" />
+                   <Label htmlFor="direct_distributor">Direct Distributor</Label>
                  </div>
                </RadioGroup>
                {state.errors?.userRank && (

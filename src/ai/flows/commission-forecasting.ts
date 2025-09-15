@@ -13,7 +13,7 @@ import {z} from 'zod';
 
 const CommissionForecastingInputSchema = z.object({
   userRank: z
-    .enum(['supervisor', 'new_supervisor'])
+    .enum(['supervisor', 'new_supervisor', 'direct_distributor'])
     .describe('The rank of the user.'),
   personalSales: z
     .number()
@@ -60,9 +60,12 @@ You must calculate the user's potential commission earnings based on a fixed set
 1.  **Supervisor Rank:**
     *   Gets 30% commission on their personal sales.
     *   Gets 10% commission on their team's sales (sales from their Direct Workers).
-2.  **Newly Promoted Supervisor Rank (previously a Direct Worker):**
+2.  **New Supervisor Rank:**
     *   Gets 20% commission on their personal sales.
     *   Gets 10% commission on their team's sales.
+3.  **Direct Distributor Rank:**
+    *   Gets 0% commission on their personal sales.
+    *   Gets 0% commission on their team's sales. Their sales only generate commission for their upline.
 
 **User's Data:**
 *   Rank: {{{userRank}}}

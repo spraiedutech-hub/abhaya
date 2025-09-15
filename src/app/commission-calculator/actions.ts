@@ -4,7 +4,7 @@ import { commissionForecasting } from '@/ai/flows/commission-forecasting';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  userRank: z.enum(['supervisor', 'new_supervisor']),
+  userRank: z.enum(['supervisor', 'new_supervisor', 'direct_distributor']),
   personalSales: z.coerce.number().positive('Personal sales must be a positive number.'),
   teamSales: z.coerce.number().nonnegative('Team sales must be a positive number or zero.'),
   currency: z.string().length(3, 'Please enter a valid 3-letter currency code.'),

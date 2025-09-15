@@ -53,6 +53,13 @@ export async function signupAction(prevState: State, formData: FormData): Promis
   try {
     const existingUser = await findUserByEmail(email);
 
+    if (existingUser && existingUser.authUid) {
+        return {
+            success: false,
+            message: 'This email is already registered. Please sign in instead.',
+        };
+    }
+
     // 1. Create the Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(
       auth,

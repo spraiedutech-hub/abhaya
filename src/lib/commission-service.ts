@@ -122,8 +122,7 @@ export async function getUserWeeklyEarnings(userId: string): Promise<number> {
 
     const q = query(
         commissionsCollection, 
-        where('userId', '==', userId),
-        where('calculationDate', '>=', oneWeekAgoTimestamp)
+        where('userId', '==', userId)
     );
     const querySnapshot = await getDocs(q);
 
@@ -133,7 +132,10 @@ export async function getUserWeeklyEarnings(userId: string): Promise<number> {
 
     return querySnapshot.docs.reduce((total, doc) => {
         const commission = doc.data() as Commission;
-        return total + commission.amount;
+        if (commission.calculationDate.toMillis() >= oneWeekAgoTimestamp.toMillis()) {
+             return total + commission.amount;
+        }
+        return total;
     }, 0);
 }
 

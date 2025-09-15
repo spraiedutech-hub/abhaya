@@ -1,10 +1,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { IndianRupee, Users, ShoppingCart, Percent } from 'lucide-react';
+import { IndianRupee, Users, ShoppingCart, Percent, Wallet } from 'lucide-react';
 import { getTotalUsers } from '@/lib/user-service';
 import { getTotalSalesStats } from '@/lib/sales-service';
 import { adminData } from '@/lib/data';
-import { getTotalCommissionPaid } from '@/lib/commission-service';
+import { getTotalCommissionPaid, getTotalWeeklyCommission } from '@/lib/commission-service';
 
 export default async function AdminOverview() {
   const { currency } = adminData.overview;
@@ -12,6 +12,7 @@ export default async function AdminOverview() {
   const totalUsers = await getTotalUsers();
   const { totalSales, totalOrders } = await getTotalSalesStats();
   const totalCommission = await getTotalCommissionPaid();
+  const weeklyCommission = await getTotalWeeklyCommission();
 
   const stats = [
     {
@@ -35,10 +36,18 @@ export default async function AdminOverview() {
       }).format(totalCommission),
       icon: Percent,
     },
+    {
+      title: 'Weekly Commission (Pending)',
+      value: new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency,
+      }).format(weeklyCommission),
+      icon: Wallet,
+    }
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
       {stats.map((stat) => (
         <Card key={stat.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

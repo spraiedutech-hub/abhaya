@@ -152,3 +152,26 @@ export async function getTotalCommissionPaid(): Promise<number> {
         return total + commission.amount;
     }, 0);
 }
+
+export async function getTotalWeeklyCommission(): Promise<number> {
+    const commissionsCollection = collection(db, 'commissions');
+    
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const oneWeekAgoTimestamp = Timestamp.fromDate(oneWeekAgo);
+
+    const q = query(
+        commissionsCollection, 
+        where('calculationDate', '>=', oneWeekAgoTimestamp)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return 0;
+    }
+
+    return querySnapshot.docs.reduce((total, doc) => {
+        const commission = doc.data() as Commission;
+        return total + commission.amount;
+    }, 0);
+}

@@ -33,13 +33,13 @@ async function seedInitialUsers() {
 
             console.log('Seeding initial users...');
             const usersCollection = collection(db, 'users');
-            const batch = writeBatch(db);
-
+            
+            // Explicitly set Alice's ID so we can rely on it.
             const aliceRef = doc(usersCollection, 'gth4q47v6se3b2idpqzn');
             const bobRef = doc(usersCollection);
 
-            batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
-            batch.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
+            transaction.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
+            transaction.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
 
             const otherUsers = [
                 { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
@@ -50,23 +50,26 @@ async function seedInitialUsers() {
 
             otherUsers.forEach(user => {
                 const docRef = doc(usersCollection);
-                batch.set(docRef, user);
+                transaction.set(docRef, user);
             });
             
-            await batch.commit();
-            
-            const newBatch = writeBatch(db);
-            newBatch.set(settingsDocRef, { completed: true });
-            await newBatch.commit();
+            // Mark seeding as complete within the same transaction
+            transaction.set(settingsDocRef, { completed: true });
 
             console.log('Initial users have been seeded to Firestore.');
         });
     } catch (error) {
-        console.error("Transaction failed: ", error);
+        console.error("User seeding transaction failed: ", error);
+        // If seeding fails, we should throw an error to prevent inconsistent states.
+        throw new Error("Failed to seed initial users.");
     }
 }
 
+// A one-time promise to ensure seeding is checked before any user function is called.
+const seedingPromise = seedInitialUsers();
+
 export async function findUserByEmail(email: string): Promise<User | null> {
+    await seedingPromise; // Ensure seeding is done before querying
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('email', '==', email), limit(1));
     const querySnapshot = await getDocs(q);
@@ -102,20 +105,14 @@ export async function addUserToFirestore(userData: Omit<User, 'id' | 'status' | 
 
 
 export async function getAllUsers(): Promise<User[]> {
+  await seedingPromise; // Ensure seeding is done before querying
   const usersCollection = collection(db, 'users');
-  let userSnapshot = await getDocs(usersCollection);
-
-  if (userSnapshot.empty) {
-      await seedInitialUsers();
-      // Re-fetch after seeding
-      userSnapshot = await getDocs(usersCollection);
-  }
-
+  const userSnapshot = await getDocs(usersCollection);
   return userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
 
 export async function getActiveUsers(): Promise<User[]> {
-    await getAllUsers(); // Ensure users are seeded if necessary
+    await seedingPromise; // Ensure seeding is done before querying
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('status', '==', 'Active'));
     const querySnapshot = await getDocs(q);
@@ -128,6 +125,7 @@ export async function getUsersByIds(userIds: string[]): Promise<User[]> {
   if (userIds.length === 0) {
     return [];
   }
+  await seedingPromise; // Ensure seeding is done before querying
   const usersCollection = collection(db, 'users');
   const q = query(usersCollection, where(documentId(), 'in', userIds));
   const querySnapshot = await getDocs(q);
@@ -135,6 +133,7 @@ export async function getUsersByIds(userIds: string[]): Promise<User[]> {
 }
 
 export async function getUserByAuthId(authId: string): Promise<User | null> {
+    await seedingPromise; // Ensure seeding is done before querying
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('authUid', '==', authId), limit(1));
     const querySnapshot = await getDocs(q);
@@ -167,12 +166,9 @@ export async function getLoggedInUser(): Promise<User | null> {
 
 
 export async function getTotalUsers(): Promise<number> {
+    await seedingPromise; // Ensure seeding is done before querying
     const usersCollection = collection(db, 'users');
-    let userSnapshot = await getDocs(usersCollection);
-    if (userSnapshot.empty) {
-        await seedInitialUsers();
-        userSnapshot = await getDocs(usersCollection);
-    }
+    const userSnapshot = await getDocs(usersCollection);
     return userSnapshot.size;
 }
 
@@ -189,7 +185,7 @@ export async function activateUser(userId: string): Promise<void> {
 }
 
 export async function getSupervisors(): Promise<User[]> {
-    await getAllUsers(); // Ensure users exist before querying
+    await seedingPromise; // Ensure seeding is done before querying
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('rank', 'in', ['Supervisor', 'New Supervisor']), where('status', '==', 'Active'));
     const querySnapshot = await getDocs(q);

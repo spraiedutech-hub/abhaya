@@ -1,7 +1,8 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, query, where, documentId, addDoc, writeBatch, updateDoc, Timestamp, getDocFromCache, limit } from 'firebase/firestore';
+import { collection, getDocs, doc, query, where, documentId, addDoc, writeBatch, updateDoc, limit, runTransaction } from 'firebase/firestore';
 import { decode } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -19,31 +20,52 @@ export interface User {
 
 async function seedInitialUsers() {
     console.log('Checking if initial users need to be seeded...');
-    const usersCollection = collection(db, 'users');
-    const batch = writeBatch(db);
-
-    const aliceRef = doc(usersCollection, 'gth4q47v6se3b2idpqzn'); // Hardcoded ID for Alice
-    const bobRef = doc(usersCollection);
-
-    // Note: In a real app with auth, you'd create these users via the auth system
-    // and store their auth UIDs. For seeding, we'll omit authUid.
-    batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
-    batch.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
-
-    const otherUsers = [
-        { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
-        { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: bobRef.id },
-        { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: aliceRef.id },
-    ];
-
-    otherUsers.forEach(user => {
-        const docRef = doc(usersCollection);
-        batch.set(docRef, user);
-    });
     
-    await batch.commit();
-    console.log('Initial users have been seeded to Firestore.');
+    const settingsDocRef = doc(db, 'settings', 'userSeeding');
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const settingsDoc = await transaction.get(settingsDocRef);
+            if (settingsDoc.exists() && settingsDoc.data().completed) {
+                console.log('User seeding has already been completed.');
+                return;
+            }
+
+            console.log('Seeding initial users...');
+            const usersCollection = collection(db, 'users');
+            const batch = writeBatch(db);
+
+            const aliceRef = doc(usersCollection, 'gth4q47v6se3b2idpqzn');
+            const bobRef = doc(usersCollection);
+
+            batch.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
+            batch.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
+
+            const otherUsers = [
+                { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
+                { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: bobRef.id },
+                { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: aliceRef.id },
+            ];
+
+            otherUsers.forEach(user => {
+                const docRef = doc(usersCollection);
+                batch.set(docRef, user);
+            });
+            
+            await batch.commit();
+            
+            // After committing the user data, mark seeding as complete
+            const newBatch = writeBatch(db);
+            newBatch.set(settingsDocRef, { completed: true });
+            await newBatch.commit();
+
+            console.log('Initial users have been seeded to Firestore.');
+        });
+    } catch (error) {
+        console.error("Transaction failed: ", error);
+    }
 }
+
 
 export async function addUserToFirestore(userData: Omit<User, 'id' | 'status' | 'joinedDate'>): Promise<string> {
     try {
@@ -76,19 +98,10 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function getActiveUsers(): Promise<User[]> {
+    await getAllUsers(); // Ensure users are seeded if necessary
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('status', '==', 'Active'));
     const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-        // Ensure there are users first.
-        const allUsers = await getAllUsers();
-        if (allUsers.length === 0) {
-             // getAllUsers will seed, so we re-call
-             return await getActiveUsers();
-        }
-        return [];
-    }
     
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
@@ -161,20 +174,10 @@ export async function activateUser(userId: string): Promise<void> {
 }
 
 export async function getSupervisors(): Promise<User[]> {
+    await getAllUsers(); // Ensure users exist before querying
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('rank', 'in', ['Supervisor', 'New Supervisor']), where('status', '==', 'Active'));
     const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-        // If there are no supervisors, we might need to handle this case.
-        // For now, let's ensure there are users first.
-        const allUsers = await getAllUsers();
-        if (allUsers.length === 0) {
-             // getAllUsers will seed, so we re-call getSupervisors
-             return await getSupervisors();
-        }
-        return [];
-    }
     
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }

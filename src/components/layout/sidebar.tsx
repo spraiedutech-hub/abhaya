@@ -19,9 +19,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import { decode } from 'jsonwebtoken';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,27 +32,10 @@ const adminNavItems = [
   { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
-const ADMIN_EMAIL = 'alice@example.com';
-
-
 export default function Sidebar() {
   const pathname = usePathname();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const session = Cookies.get('session');
-    if (session) {
-      try {
-        const decodedToken = decode(session);
-        if (typeof decodedToken === 'object' && decodedToken !== null && 'email' in decodedToken) {
-          setIsAdmin(decodedToken.email === ADMIN_EMAIL);
-        }
-      } catch (e) {
-        console.error("Failed to decode token", e);
-      }
-    }
-  }, []);
-
+  // TODO: Add back admin role check
+  const isAdmin = true;
   const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
 
   return (

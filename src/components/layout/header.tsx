@@ -1,16 +1,7 @@
 
 'use client';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   LayoutDashboard,
@@ -20,18 +11,11 @@ import {
   Menu,
   Shield,
   DollarSign,
-  LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { logoutAction } from './actions';
-import { useEffect, useState } from 'react';
-import { decode } from 'jsonwebtoken';
-import Cookies from 'js-cookie';
-
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -45,30 +29,10 @@ const adminNavItems = [
     { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
-const ADMIN_EMAIL = 'alice@example.com';
-
 export default function Header() {
   const pathname = usePathname();
-  const [isAdmin, setIsAdmin] = useState(false);
-  
-  useEffect(() => {
-    const session = Cookies.get('session');
-    if (session) {
-      try {
-        const decodedToken = decode(session);
-        if (typeof decodedToken === 'object' && decodedToken !== null && 'email' in decodedToken) {
-          setIsAdmin(decodedToken.email === ADMIN_EMAIL);
-        }
-      } catch (e) {
-        console.error("Failed to decode token", e);
-      }
-    }
-  }, []);
-
-  const handleLogout = async () => {
-    await logoutAction();
-  }
-
+  // TODO: Add back admin role check
+  const isAdmin = true;
   const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
 
   return (
@@ -107,43 +71,6 @@ export default function Header() {
           </nav>
         </SheetContent>
       </Sheet>
-      <div className="relative ml-auto flex-1 md:grow-0">
-        {/* Can add a search bar here if needed */}
-      </div>
-      <DropdownMenu>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="overflow-hidden rounded-full"
-                >
-                  <Avatar>
-                    <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" alt="User Avatar" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>My Account</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2" />
-            Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }

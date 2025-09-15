@@ -3,9 +3,6 @@
 
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, query, where, documentId, addDoc, updateDoc, limit } from 'firebase/firestore';
-import { decode } from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export interface User {
   id: string;
@@ -69,21 +66,6 @@ export async function getUserByAuthId(authId: string): Promise<User | null> {
     const doc = querySnapshot.docs[0];
     return { id: doc.id, ...doc.data() } as User;
 }
-
-export async function getLoggedInUser(): Promise<User | null> {
-    const session = cookies().get('session')?.value;
-    if (!session) return null;
-    
-    // The middleware is responsible for validating the token.
-    // This function can now safely assume the token is valid if it exists.
-    const decodedToken = decode(session);
-    if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
-         return null;
-    }
-    const user = await getUserByAuthId(decodedToken.uid);
-    return user;
-}
-
 
 export async function getTotalUsers(): Promise<number> {
     const usersCollection = collection(db, 'users');

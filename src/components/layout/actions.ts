@@ -1,10 +1,8 @@
 
 'use server';
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+// This file is now empty as all authentication actions have been removed.
 
 export async function logoutAction() {
-  cookies().delete('session');
-  redirect('/login');
+  // No-op
 }

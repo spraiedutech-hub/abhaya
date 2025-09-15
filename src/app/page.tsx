@@ -4,14 +4,9 @@ import DownlineTree from '@/components/dashboard/downline-tree';
 import RewardsGrid from '@/components/dashboard/rewards-grid';
 import ReferralCard from '@/components/dashboard/referral-card';
 import RequestPurchaseCard from '@/components/dashboard/request-purchase-card';
-import { getLoggedInUser } from '@/lib/user-service';
-import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  const user = await getLoggedInUser();
-  if (!user) {
-    redirect('/login');
-  }
+  const mockUserId = 'mock-user-id';
 
   return (
     <MainLayout>
@@ -24,7 +19,7 @@ export default async function Home() {
           </div>
           <div className="flex flex-col gap-8">
             <RequestPurchaseCard />
-            <ReferralCard userId={user.id} />
+            <ReferralCard userId={mockUserId} />
             <RewardsGrid />
           </div>
         </div>

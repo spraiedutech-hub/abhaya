@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, query, where, documentId, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { decode } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export interface User {
   id: string;

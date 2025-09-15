@@ -113,6 +113,30 @@ export async function getUserEarnings(userId: string): Promise<number> {
     }, 0);
 }
 
+export async function getUserWeeklyEarnings(userId: string): Promise<number> {
+    const commissionsCollection = collection(db, 'commissions');
+    
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const oneWeekAgoTimestamp = Timestamp.fromDate(oneWeekAgo);
+
+    const q = query(
+        commissionsCollection, 
+        where('userId', '==', userId),
+        where('calculationDate', '>=', oneWeekAgoTimestamp)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return 0;
+    }
+
+    return querySnapshot.docs.reduce((total, doc) => {
+        const commission = doc.data() as Commission;
+        return total + commission.amount;
+    }, 0);
+}
+
 export async function getTotalCommissionPaid(): Promise<number> {
     const commissionsCollection = collection(db, 'commissions');
     const querySnapshot = await getDocs(commissionsCollection);

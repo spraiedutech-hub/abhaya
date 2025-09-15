@@ -21,22 +21,22 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/member', label: 'Member Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
   { href: '/support', label: 'Support', icon: Headset },
 ];
 
 const adminNavItems = [
+  { href: '/', label: 'Admin Dashboard', icon: Shield },
   { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
-  { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   // TODO: Add back admin role check
   const isAdmin = true;
-  const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
+  const allNavItems = isAdmin ? [...adminNavItems, ...navItems] : navItems;
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">

@@ -18,22 +18,22 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/member', label: 'Member Dashboard', icon: LayoutDashboard },
   { href: '/commission-calculator', label: 'Calculator', icon: Calculator },
   { href: '/training', label: 'Training', icon: BookOpen },
   { href: '/support', label: 'Support', icon: Headset },
 ];
 
 const adminNavItems = [
+    { href: '/', label: 'Admin Dashboard', icon: Shield },
     { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
-    { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
 export default function Header() {
   const pathname = usePathname();
   // TODO: Add back admin role check
   const isAdmin = true;
-  const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
+  const allNavItems = isAdmin ? [...adminNavItems, ...navItems] : navItems;
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">

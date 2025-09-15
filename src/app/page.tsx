@@ -3,6 +3,7 @@ import EarningsOverview from '@/components/dashboard/earnings-overview';
 import DownlineTree from '@/components/dashboard/downline-tree';
 import RewardsGrid from '@/components/dashboard/rewards-grid';
 import ReferralCard from '@/components/dashboard/referral-card';
+import RequestPurchaseCard from '@/components/dashboard/request-purchase-card';
 import { getLoggedInUser } from '@/lib/user-service';
 import { redirect } from 'next/navigation';
 
@@ -22,6 +23,7 @@ export default async function Home() {
             <DownlineTree />
           </div>
           <div className="flex flex-col gap-8">
+            <RequestPurchaseCard />
             <ReferralCard userId={user.id} />
             <RewardsGrid />
           </div>

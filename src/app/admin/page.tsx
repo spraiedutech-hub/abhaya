@@ -5,10 +5,8 @@ import RecentSales from '@/components/admin/recent-sales';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PurchaseRequests from '@/components/admin/purchase-requests';
-import { seedInitialUsers } from '@/lib/user-service';
 
 export default async function AdminPage() {
-  await seedInitialUsers();
   return (
     <MainLayout>
       <div className="flex flex-col gap-8">

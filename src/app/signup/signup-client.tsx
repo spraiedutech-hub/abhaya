@@ -33,17 +33,17 @@ function SubmitButton() {
 
 export default function SignupClient({ supervisors, referredBy }: { supervisors: User[], referredBy: User | null }) {
   const [state, formAction] = useActionState(signupAction, initialState);
-  const [origin, setOrigin] = useState('');
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const [isAdminSignup, setIsAdminSignup] = useState(false);
 
   // If a valid referral is provided, and that user isn't in the supervisors list, add them.
   // This allows any active user to refer, not just supervisors.
   const supervisorList = [...supervisors];
   if (referredBy && !supervisorList.find(s => s.id === referredBy.id)) {
       supervisorList.unshift(referredBy);
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsAdminSignup(e.target.value === 'alice@example.com');
   }
 
 
@@ -75,7 +75,7 @@ export default function SignupClient({ supervisors, referredBy }: { supervisors:
 
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="jane.doe@example.com" required />
+            <Input id="email" name="email" type="email" placeholder="jane.doe@example.com" required onChange={handleEmailChange}/>
             {state.errors?.email && <p className="text-sm text-destructive">{state.errors.email[0]}</p>}
           </div>
           
@@ -92,29 +92,32 @@ export default function SignupClient({ supervisors, referredBy }: { supervisors:
             </div>
            </div>
 
-           <div className="grid gap-2">
-              <Label htmlFor="uplineId">Recruiter</Label>
-              <Select name="uplineId" required defaultValue={referredBy?.id}>
-                <SelectTrigger id="uplineId" disabled={!!referredBy}>
-                  <SelectValue placeholder="Select a recruiter" />
-                </SelectTrigger>
-                <SelectContent>
-                  {referredBy && (
-                    <SelectItem key={referredBy.id} value={referredBy.id}>
-                      {referredBy.name}
-                    </SelectItem>
-                  )}
-                   {!referredBy && supervisors.map(supervisor => (
-                    <SelectItem key={supervisor.id} value={supervisor.id}>
-                      {supervisor.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {state.errors?.uplineId && (
-                <p className="text-sm text-destructive">{state.errors.uplineId[0]}</p>
-              )}
-            </div>
+           {!isAdminSignup && (
+            <div className="grid gap-2">
+                <Label htmlFor="uplineId">Recruiter</Label>
+                <Select name="uplineId" required defaultValue={referredBy?.id}>
+                  <SelectTrigger id="uplineId" disabled={!!referredBy}>
+                    <SelectValue placeholder="Select a recruiter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {referredBy && (
+                      <SelectItem key={referredBy.id} value={referredBy.id}>
+                        {referredBy.name}
+                      </SelectItem>
+                    )}
+                    {!referredBy && supervisors.map(supervisor => (
+                      <SelectItem key={supervisor.id} value={supervisor.id}>
+                        {supervisor.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {state.errors?.uplineId && (
+                  <p className="text-sm text-destructive">{state.errors.uplineId[0]}</p>
+                )}
+              </div>
+            )}
+
 
         </CardContent>
         <CardFooter className="flex flex-col gap-4">

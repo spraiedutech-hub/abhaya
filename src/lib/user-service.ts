@@ -18,54 +18,6 @@ export interface User {
   uplineId?: string; // ID of the user who recruited them
 }
 
-export async function seedInitialUsers() {
-    const settingsDocRef = doc(db, 'settings', 'userSeeding');
-    const usersCollection = collection(db, 'users');
-    
-    // Check if Alice already exists to avoid re-seeding.
-    const aliceQuery = query(usersCollection, where('email', '==', 'alice@example.com'), limit(1));
-    const aliceSnapshot = await getDocs(aliceQuery);
-    if (!aliceSnapshot.empty) {
-        return; // Alice exists, no need to seed.
-    }
-
-    try {
-        await runTransaction(db, async (transaction) => {
-            const settingsDoc = await transaction.get(settingsDocRef);
-            if (settingsDoc.exists() && settingsDoc.data().completed) {
-                return;
-            }
-
-            console.log('Seeding initial users...');
-            
-            const aliceRef = doc(usersCollection);
-            transaction.set(aliceRef, { name: 'Alice', email: 'alice@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-01-15' });
-
-            const bobRef = doc(usersCollection);
-            transaction.set(bobRef, { name: 'Bob', email: 'bob@example.com', status: 'Active', rank: 'Supervisor', joinedDate: '2023-02-20' });
-
-            const otherUsers = [
-                { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
-                { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: bobRef.id },
-                { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: aliceRef.id },
-                { name: 'Frank', email: 'frank@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-05-12', uplineId: bobRef.id },
-            ];
-
-            otherUsers.forEach(user => {
-                const docRef = doc(usersCollection);
-                transaction.set(docRef, user);
-            });
-            
-            transaction.set(settingsDocRef, { completed: true });
-            console.log('Initial users have been seeded to Firestore.');
-        });
-    } catch (error) {
-        console.error("User seeding transaction failed: ", error);
-        throw new Error("Failed to seed initial users.");
-    }
-}
-
-
 export async function findUserByEmail(email: string): Promise<User | null> {
     const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where('email', '==', email), limit(1));
@@ -85,12 +37,11 @@ export async function linkAuthToUser(userId: string, authUid: string): Promise<v
 }
 
 
-export async function addUserToFirestore(userData: Omit<User, 'id' | 'status' | 'joinedDate'>): Promise<string> {
+export async function addUserToFirestore(userData: Omit<User, 'id' | 'joinedDate'>): Promise<string> {
     try {
         const usersCollection = collection(db, 'users');
         const docRef = await addDoc(usersCollection, {
             ...userData,
-            status: 'Inactive',
             joinedDate: new Date().toISOString().split('T')[0],
         });
         return docRef.id;

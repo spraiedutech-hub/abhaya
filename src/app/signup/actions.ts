@@ -12,10 +12,16 @@ const formSchema = z.object({
     email: z.string().email('Please enter a valid email.'),
     password: z.string().min(6, 'Password must be at least 6 characters.'),
     confirmPassword: z.string(),
-    uplineId: z.string().min(1, 'Please select a supervisor.'),
+    uplineId: z.string().optional(), // Make optional as admin doesn't have one
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
+}).refine(data => {
+    // Require uplineId if the user is not the admin
+    return data.email === 'alice@example.com' || typeof data.uplineId === 'string' && data.uplineId.length > 0;
+}, {
+    message: 'Please select a supervisor.',
+    path: ['uplineId'],
 });
 
 
@@ -42,30 +48,43 @@ export async function signupAction(prevState: State, formData: FormData): Promis
     };
   }
 
+  const { email, password, name, uplineId } = validatedFields.data;
+
   try {
-    const existingUser = await findUserByEmail(validatedFields.data.email);
+    const existingUser = await findUserByEmail(email);
 
     // 1. Create the Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      validatedFields.data.email,
-      validatedFields.data.password
+      email,
+      password
     );
 
     const authUid = userCredential.user.uid;
 
-    // 2. If it's a pre-seeded user (like our admin Alice), link the auth ID.
-    // Otherwise, create a new user document in Firestore.
     if (existingUser) {
+        // This handles cases where Alice's doc might exist from a previous failed run
         await linkAuthToUser(existingUser.id, authUid);
     } else {
-        await addUserToFirestore({
-            authUid: authUid,
-            name: validatedFields.data.name,
-            email: validatedFields.data.email,
-            uplineId: validatedFields.data.uplineId,
-            rank: 'Direct Distributor', 
-        });
+        // Special case for the admin user
+        if (email === 'alice@example.com') {
+             await addUserToFirestore({
+                authUid: authUid,
+                name: name,
+                email: email,
+                rank: 'Supervisor',
+                status: 'Active', // Create admin as Active
+            });
+        } else {
+             await addUserToFirestore({
+                authUid: authUid,
+                name: name,
+                email: email,
+                uplineId: uplineId,
+                rank: 'Direct Distributor',
+                status: 'Inactive', // Create all other users as Inactive
+            });
+        }
     }
 
     return {

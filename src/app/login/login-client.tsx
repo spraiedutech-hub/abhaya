@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { loginAction } from './actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +30,13 @@ function SubmitButton() {
 
 export default function LoginClient() {
   const [state, formAction] = useActionState(loginAction, initialState);
+
+  useEffect(() => {
+    if (state.success === true) {
+      // On successful login, redirect to the dashboard.
+      window.location.href = '/';
+    }
+  }, [state.success]);
 
   return (
     <Card className="w-full max-w-sm">

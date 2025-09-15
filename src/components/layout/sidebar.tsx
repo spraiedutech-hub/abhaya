@@ -73,6 +73,9 @@ export default function Sidebar() {
             </Tooltip>
           ))}
         </nav>
+        <div className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+            {/* Additional items can go here */}
+        </div>
       </TooltipProvider>
     </aside>
   );

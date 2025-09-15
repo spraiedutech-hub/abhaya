@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { AuthError } from 'firebase/auth';
 import { addUserToFirestore } from '@/lib/user-service';
+import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
     name: z.string().min(1, 'Please enter a name.'),
@@ -59,31 +60,29 @@ export async function signupAction(prevState: State, formData: FormData): Promis
     );
 
     const authUid = userCredential.user.uid;
-    let userData;
     const isAdmin = lowerCaseEmail === 'alice@example.com';
 
+    // This is the corrected, simplified logic.
     if (isAdmin) {
-      // Special case for the admin user
-      userData = {
+      await addUserToFirestore({
         authUid: authUid,
         name: name,
         email: lowerCaseEmail,
-        rank: 'Supervisor' as const,
-        status: 'Active' as const, 
-      };
+        rank: 'Supervisor',
+        status: 'Active',
+      });
     } else {
-      // Standard case for all other users
-      userData = {
+      await addUserToFirestore({
         authUid: authUid,
         name: name,
         email: lowerCaseEmail,
         uplineId: uplineId,
-        rank: 'Direct Distributor' as const,
-        status: 'Inactive' as const,
-      };
+        rank: 'Direct Distributor',
+        status: 'Inactive',
+      });
     }
-    
-    await addUserToFirestore(userData);
+
+    revalidatePath('/login');
     
     return {
       success: true,

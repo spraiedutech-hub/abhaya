@@ -22,7 +22,7 @@ async function seedInitialUsers() {
     const usersCollection = collection(db, 'users');
     const batch = writeBatch(db);
 
-    const aliceRef = doc(usersCollection, 'Gth4q47v6sE3b2iDpQzN'); // Hardcoded ID for Alice
+    const aliceRef = doc(usersCollection, 'gth4q47v6se3b2idpqzn'); // Hardcoded ID for Alice
     const bobRef = doc(usersCollection);
 
     // Note: In a real app with auth, you'd create these users via the auth system

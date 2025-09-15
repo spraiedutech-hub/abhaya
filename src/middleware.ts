@@ -29,8 +29,9 @@ export async function middleware(request: NextRequest) {
       throw new Error('Invalid token');
     }
 
-    // If the user has a valid session but tries to access login/signup, redirect to home
-    if (isPublicPath) {
+    // If the user has a valid session but tries to access login/signup, redirect to home.
+    // We allow the POST request to go through so the server action can run.
+    if (isPublicPath && request.method !== 'POST') {
       return NextResponse.redirect(new URL('/', request.url));
     }
 

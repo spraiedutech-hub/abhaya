@@ -5,7 +5,6 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, query, where, documentId, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { decode } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export interface User {
   id: string;
@@ -74,19 +73,14 @@ export async function getLoggedInUser(): Promise<User | null> {
     const session = cookies().get('session')?.value;
     if (!session) return null;
     
-    try {
-        const decodedToken = decode(session);
-        // The middleware now handles invalid tokens, so we just need to check if it's decodable
-        if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
-             return null;
-        }
-        const user = await getUserByAuthId(decodedToken.uid);
-        return user;
-    } catch (error) {
-        // If any other error occurs, treat as not logged in.
-        console.error("Session verification failed:", error);
-        return null;
+    // The middleware is now responsible for validating the token and redirecting.
+    // This function can now safely assume the token is valid if it exists.
+    const decodedToken = decode(session);
+    if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
+         return null;
     }
+    const user = await getUserByAuthId(decodedToken.uid);
+    return user;
 }
 
 

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { AuthError } from 'firebase/auth';
-import { addUserToFirestore } from '@/lib/user-service';
+import { addUserToFirestore, findUserByEmail, linkAuthToUser } from '@/lib/user-service';
 
 const formSchema = z.object({
     name: z.string().min(1, 'Please enter a name.'),
@@ -43,6 +43,8 @@ export async function signupAction(prevState: State, formData: FormData): Promis
   }
 
   try {
+    const existingUser = await findUserByEmail(validatedFields.data.email);
+
     // 1. Create the Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -52,15 +54,19 @@ export async function signupAction(prevState: State, formData: FormData): Promis
 
     const authUid = userCredential.user.uid;
 
-    // 2. Create the user document in Firestore
-    await addUserToFirestore({
-        authUid: authUid,
-        name: validatedFields.data.name,
-        email: validatedFields.data.email,
-        uplineId: validatedFields.data.uplineId,
-        // New users are Direct Distributors by default
-        rank: 'Direct Distributor', 
-    });
+    // 2. If it's a pre-seeded user (like our admin Alice), link the auth ID.
+    // Otherwise, create a new user document in Firestore.
+    if (existingUser) {
+        await linkAuthToUser(existingUser.id, authUid);
+    } else {
+        await addUserToFirestore({
+            authUid: authUid,
+            name: validatedFields.data.name,
+            email: validatedFields.data.email,
+            uplineId: validatedFields.data.uplineId,
+            rank: 'Direct Distributor', 
+        });
+    }
 
     return {
       success: true,

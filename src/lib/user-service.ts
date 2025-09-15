@@ -45,6 +45,7 @@ async function seedInitialUsers() {
                 { name: 'Charlie', email: 'charlie@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-03-01', uplineId: aliceRef.id },
                 { name: 'David', email: 'david@example.com', status: 'Inactive', rank: 'Direct Distributor', joinedDate: '2023-03-05', uplineId: bobRef.id },
                 { name: 'Eve', email: 'eve@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-04-10', uplineId: aliceRef.id },
+                { name: 'Frank', email: 'frank@example.com', status: 'Active', rank: 'Direct Distributor', joinedDate: '2023-05-12', uplineId: bobRef.id },
             ];
 
             otherUsers.forEach(user => {
@@ -54,7 +55,6 @@ async function seedInitialUsers() {
             
             await batch.commit();
             
-            // After committing the user data, mark seeding as complete
             const newBatch = writeBatch(db);
             newBatch.set(settingsDocRef, { completed: true });
             await newBatch.commit();
@@ -64,6 +64,24 @@ async function seedInitialUsers() {
     } catch (error) {
         console.error("Transaction failed: ", error);
     }
+}
+
+export async function findUserByEmail(email: string): Promise<User | null> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('email', '==', email), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return null;
+    }
+
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as User;
+}
+
+export async function linkAuthToUser(userId: string, authUid: string): Promise<void> {
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, { authUid: authUid });
 }
 
 
@@ -85,13 +103,12 @@ export async function addUserToFirestore(userData: Omit<User, 'id' | 'status' | 
 
 export async function getAllUsers(): Promise<User[]> {
   const usersCollection = collection(db, 'users');
-  const userSnapshot = await getDocs(usersCollection);
+  let userSnapshot = await getDocs(usersCollection);
 
   if (userSnapshot.empty) {
       await seedInitialUsers();
       // Re-fetch after seeding
-      const seededSnapshot = await getDocs(usersCollection);
-      return seededSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+      userSnapshot = await getDocs(usersCollection);
   }
 
   return userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
@@ -143,7 +160,6 @@ export async function getLoggedInUser(): Promise<User | null> {
         return user;
     } catch (error) {
         console.error("Session verification failed:", error);
-        // This is critical. If the cookie is invalid, we should clear it and redirect.
         cookies().delete('session');
         redirect('/login');
     }
@@ -152,11 +168,10 @@ export async function getLoggedInUser(): Promise<User | null> {
 
 export async function getTotalUsers(): Promise<number> {
     const usersCollection = collection(db, 'users');
-    const userSnapshot = await getDocs(usersCollection);
+    let userSnapshot = await getDocs(usersCollection);
     if (userSnapshot.empty) {
         await seedInitialUsers();
-        const seededSnapshot = await getDocs(usersCollection);
-        return seededSnapshot.size;
+        userSnapshot = await getDocs(usersCollection);
     }
     return userSnapshot.size;
 }

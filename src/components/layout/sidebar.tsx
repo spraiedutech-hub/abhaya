@@ -16,6 +16,7 @@ import {
   Headset,
   Shield,
   DollarSign,
+  UserPlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/icons/logo';
@@ -30,6 +31,7 @@ const navItems = [
 const adminNavItems = [
   { href: '/', label: 'Admin Dashboard', icon: Shield },
   { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
+  { href: '/add-user', label: 'Add User', icon: UserPlus },
 ];
 
 export default function Sidebar() {

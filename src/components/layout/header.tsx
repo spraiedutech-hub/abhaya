@@ -11,6 +11,7 @@ import {
   Menu,
   Shield,
   DollarSign,
+  UserPlus,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,6 +28,7 @@ const navItems = [
 const adminNavItems = [
     { href: '/', label: 'Admin Dashboard', icon: Shield },
     { href: '/record-sale', label: 'Record Sale', icon: DollarSign },
+    { href: '/add-user', label: 'Add User', icon: UserPlus },
 ];
 
 export default function Header() {

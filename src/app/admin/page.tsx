@@ -4,6 +4,7 @@ import UserManagement from '@/components/admin/user-management';
 import RecentSales from '@/components/admin/recent-sales';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import PurchaseRequests from '@/components/admin/purchase-requests';
 
 export default function AdminPage() {
   return (
@@ -17,6 +18,9 @@ export default function AdminPage() {
         </div>
         <Suspense fallback={<Skeleton className="h-24" />}>
           <AdminOverview />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-96" />}>
+          <PurchaseRequests />
         </Suspense>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2">

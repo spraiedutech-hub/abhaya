@@ -7,6 +7,7 @@ import { auth } from '@/lib/firebase';
 import { AuthError } from 'firebase/auth';
 import { cookies } from 'next/headers';
 import { getUserByAuthId } from '@/lib/user-service';
+import { redirect } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
@@ -55,7 +56,6 @@ export async function loginAction(prevState: State, formData: FormData): Promise
       path: '/',
     });
 
-    return { success: true, message: 'Login successful' };
   } catch (error) {
     const e = error as AuthError;
     let message = 'An unexpected error occurred.';
@@ -70,4 +70,6 @@ export async function loginAction(prevState: State, formData: FormData): Promise
     }
     return { success: false, message };
   }
+
+  redirect('/');
 }

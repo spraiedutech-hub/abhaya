@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { AuthError } from 'firebase/auth';
-import { addUserToFirestore, findUserByEmail, linkAuthToUser } from '@/lib/user-service';
+import { addUserToFirestore } from '@/lib/user-service';
 
 const formSchema = z.object({
     name: z.string().min(1, 'Please enter a name.'),
@@ -51,15 +51,6 @@ export async function signupAction(prevState: State, formData: FormData): Promis
   const { email, password, name, uplineId } = validatedFields.data;
 
   try {
-    const existingUser = await findUserByEmail(email);
-
-    if (existingUser && existingUser.authUid) {
-        return {
-            success: false,
-            message: 'This email is already registered. Please sign in instead.',
-        };
-    }
-
     // 1. Create the Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -69,31 +60,28 @@ export async function signupAction(prevState: State, formData: FormData): Promis
 
     const authUid = userCredential.user.uid;
 
-    if (existingUser) {
-        // This handles cases where Alice's doc might exist from a previous failed run
-        await linkAuthToUser(existingUser.id, authUid);
+    // 2. Add user to Firestore with correct status
+    if (email === 'alice@example.com') {
+      // Special case for the admin user
+      await addUserToFirestore({
+        authUid: authUid,
+        name: name,
+        email: email,
+        rank: 'Supervisor',
+        status: 'Active', // Create admin as Active
+      });
     } else {
-        // Special case for the admin user
-        if (email === 'alice@example.com') {
-             await addUserToFirestore({
-                authUid: authUid,
-                name: name,
-                email: email,
-                rank: 'Supervisor',
-                status: 'Active', // Create admin as Active
-            });
-        } else {
-             await addUserToFirestore({
-                authUid: authUid,
-                name: name,
-                email: email,
-                uplineId: uplineId,
-                rank: 'Direct Distributor',
-                status: 'Inactive', // Create all other users as Inactive
-            });
-        }
+      // Standard case for all other users
+      await addUserToFirestore({
+        authUid: authUid,
+        name: name,
+        email: email,
+        uplineId: uplineId,
+        rank: 'Direct Distributor',
+        status: 'Inactive', // Create all other users as Inactive
+      });
     }
-
+    
     return {
       success: true,
       message: 'Account created! It is now pending approval from an administrator.',

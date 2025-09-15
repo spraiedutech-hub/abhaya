@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, query, where, documentId, addDoc, writeBatch, updateDoc, limit, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, doc, query, where, documentId, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { decode } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -17,25 +17,6 @@ export interface User {
   joinedDate: string;
   uplineId?: string; // ID of the user who recruited them
 }
-
-export async function findUserByEmail(email: string): Promise<User | null> {
-    const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, where('email', '==', email), limit(1));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-        return null;
-    }
-
-    const doc = querySnapshot.docs[0];
-    return { id: doc.id, ...doc.data() } as User;
-}
-
-export async function linkAuthToUser(userId: string, authUid: string): Promise<void> {
-    const userDocRef = doc(db, 'users', userId);
-    await updateDoc(userDocRef, { authUid: authUid });
-}
-
 
 export async function addUserToFirestore(userData: Omit<User, 'id' | 'joinedDate'>): Promise<string> {
     try {

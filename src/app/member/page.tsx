@@ -4,6 +4,7 @@ import DownlineTree from '@/components/dashboard/downline-tree';
 import RewardsGrid from '@/components/dashboard/rewards-grid';
 import ReferralCard from '@/components/dashboard/referral-card';
 import RequestPurchaseCard from '@/components/dashboard/request-purchase-card';
+import DownlineStatus from '@/components/dashboard/downline-status';
 
 export default async function MemberPage() {
   const mockUserId = 'mock-user-id';
@@ -13,6 +14,7 @@ export default async function MemberPage() {
       <div className="flex flex-col gap-8">
         <h1 className="text-3xl font-bold tracking-tight">Member Dashboard</h1>
         <EarningsOverview />
+        <DownlineStatus userId={mockUserId} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <DownlineTree />

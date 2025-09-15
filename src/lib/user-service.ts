@@ -44,6 +44,18 @@ export async function getActiveUsers(): Promise<User[]> {
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
 }
 
+export async function getInactiveDownline(userId: string): Promise<User[]> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where('uplineId', '==', userId), where('status', '==', 'Inactive'));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return [];
+    }
+
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+}
+
 
 export async function getUsersByIds(userIds: string[]): Promise<User[]> {
   if (userIds.length === 0) {

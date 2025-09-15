@@ -76,16 +76,16 @@ export async function getLoggedInUser(): Promise<User | null> {
     
     try {
         const decodedToken = decode(session);
+        // The middleware now handles invalid tokens, so we just need to check if it's decodable
         if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {
-             cookies().delete('session');
-             redirect('/login');
+             return null;
         }
         const user = await getUserByAuthId(decodedToken.uid);
         return user;
     } catch (error) {
+        // If any other error occurs, treat as not logged in.
         console.error("Session verification failed:", error);
-        cookies().delete('session');
-        redirect('/login');
+        return null;
     }
 }
 

@@ -73,7 +73,7 @@ export async function getLoggedInUser(): Promise<User | null> {
     const session = cookies().get('session')?.value;
     if (!session) return null;
     
-    // The middleware is now responsible for validating the token and redirecting.
+    // The middleware is responsible for validating the token.
     // This function can now safely assume the token is valid if it exists.
     const decodedToken = decode(session);
     if (!decodedToken || typeof decodedToken === 'string' || !decodedToken.uid) {

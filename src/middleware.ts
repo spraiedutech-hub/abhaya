@@ -26,11 +26,16 @@ export async function middleware(request: NextRequest) {
   try {
     const decodedToken = decode(session);
     if (typeof decodedToken !== 'object' || decodedToken === null || !decodedToken.uid) {
-      throw new Error('Invalid token');
+      throw new Error('Invalid token structure');
+    }
+
+    // This check handles the expiration of the token. `exp` is in seconds.
+    if (decodedToken.exp && decodedToken.exp * 1000 < Date.now()) {
+        throw new Error('Token expired');
     }
 
     // If the user has a valid session but tries to access login/signup, redirect to home.
-    // We allow the POST request to go through so the server action can run.
+    // We allow POST requests to go through so the server actions can run.
     if (isPublicPath && request.method !== 'POST') {
       return NextResponse.redirect(new URL('/', request.url));
     }

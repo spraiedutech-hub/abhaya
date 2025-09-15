@@ -38,16 +38,16 @@ export async function loginAction(prevState: State, formData: FormData): Promise
       validatedFields.data.password
     );
 
-    // Check user status in Firestore before setting session
+    // This check MUST happen AFTER successful authentication
     const user = await getUserByAuthId(userCredential.user.uid);
     if (!user || user.status === 'Inactive') {
-        // Even if auth is valid, we don't let them log in if their account is inactive in our system.
+        // Log them out of Firebase Auth session if our DB says they are inactive
+        await auth.signOut();
         return { success: false, message: 'Your account is inactive and pending admin approval.' };
     }
 
     const idToken = await userCredential.user.getIdToken();
     
-    // Set cookie for session management
     cookies().set('session', idToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

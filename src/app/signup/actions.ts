@@ -17,9 +17,10 @@ const formSchema = z.object({
     message: "Passwords don't match",
     path: ['confirmPassword'],
 }).refine(data => {
-    return data.email === 'alice@example.com' || (typeof data.uplineId === 'string' && data.uplineId.length > 0);
+    // The uplineId is required for everyone except the special admin user.
+    return data.email.toLowerCase() === 'alice@example.com' || (typeof data.uplineId === 'string' && data.uplineId.length > 0);
 }, {
-    message: 'Please select a supervisor.',
+    message: 'Please select a recruiter.',
     path: ['uplineId'],
 });
 
@@ -48,24 +49,25 @@ export async function signupAction(prevState: State, formData: FormData): Promis
   }
 
   const { email, password, name, uplineId } = validatedFields.data;
+  const lowerCaseEmail = email.toLowerCase();
 
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      email,
+      lowerCaseEmail,
       password
     );
 
     const authUid = userCredential.user.uid;
-
     let userData;
+    const isAdmin = lowerCaseEmail === 'alice@example.com';
 
-    if (email === 'alice@example.com') {
+    if (isAdmin) {
       // Special case for the admin user
       userData = {
         authUid: authUid,
         name: name,
-        email: email,
+        email: lowerCaseEmail,
         rank: 'Supervisor' as const,
         status: 'Active' as const, 
       };
@@ -74,7 +76,7 @@ export async function signupAction(prevState: State, formData: FormData): Promis
       userData = {
         authUid: authUid,
         name: name,
-        email: email,
+        email: lowerCaseEmail,
         uplineId: uplineId,
         rank: 'Direct Distributor' as const,
         status: 'Inactive' as const,
@@ -85,7 +87,7 @@ export async function signupAction(prevState: State, formData: FormData): Promis
     
     return {
       success: true,
-      message: email === 'alice@example.com' ? 'Admin account created successfully! You can now log in.' : 'Account created! It is now pending approval from an administrator.',
+      message: isAdmin ? 'Admin account created successfully! You can now log in.' : 'Account created successfully! It is now pending approval from an administrator.',
     };
   } catch (error) {
     const e = error as AuthError;

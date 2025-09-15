@@ -17,6 +17,7 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        brand: 'hsl(var(--brand))',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -88,10 +89,15 @@ export default {
             height: '0',
           },
         },
+        'text-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'text-pulse': 'text-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

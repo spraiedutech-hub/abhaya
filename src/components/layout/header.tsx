@@ -78,7 +78,7 @@ export default function Header() {
         </Sheet>
         <Link href="/" className="flex items-center gap-2 font-semibold">
             <Logo className="h-6 w-6" />
-            <span className="text-lg">Abhaya</span>
+            <span className="text-lg animate-text-pulse text-brand">Abhaya</span>
         </Link>
       </div>
     </header>

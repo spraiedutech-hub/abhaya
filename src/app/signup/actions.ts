@@ -62,7 +62,6 @@ export async function signupAction(prevState: State, formData: FormData): Promis
     const authUid = userCredential.user.uid;
     const isAdmin = lowerCaseEmail === 'alice@example.com';
 
-    // This is the corrected, simplified logic.
     if (isAdmin) {
       await addUserToFirestore({
         authUid: authUid,
